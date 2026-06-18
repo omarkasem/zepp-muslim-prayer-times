@@ -2,20 +2,19 @@
   "configVersion": "v3",
   "app": {
     "appId": 21915,
-    "appName": "Hello World",
+    "appName": "Prayer Times",
     "appType": "app",
     "version": {
-      "code": 1,
-      "name": "1.0.1"
+      "code": 6,
+      "name": "1.0.6"
     },
     "icon": "icon.png",
     "vender": "zepp",
-    "description": "hello world app"
+    "description": "muslim prayer times"
   },
   "permissions": [
     "data:os.device.info",
-    "device:os.local_storage",
-    "device:os.geolocation"
+    "device:os.local_storage"
   ],
   "runtime": {
     "apiVersion": {
@@ -32,6 +31,9 @@
           "pages": [
             "page/gt/home/index.page"
           ]
+        },
+        "app-side": {
+          "path": "app-side/index"
         }
       },
       "platforms": [
@@ -50,6 +52,9 @@
           "pages": [
             "page/bip6/home/index.page"
           ]
+        },
+        "app-side": {
+          "path": "app-side/index"
         }
       },
       "platforms": [
@@ -71,7 +76,7 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "Hello World"
+      "appName": "Prayer Times"
     }
   },
   "defaultLanguage": "en-US"
