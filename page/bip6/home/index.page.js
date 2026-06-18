@@ -3,12 +3,11 @@ import * as hmUI from "@zos/ui";
 import { log as Logger } from "@zos/utils";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
-import { queryPermission, requestPermission } from "@zos/app";
-import { start } from "@zos/app-service";
+import { getPackageInfo } from "@zos/app";
+import * as alarmMgr from "@zos/alarm";
 
 const logger = Logger.getLogger("muslim-prayer-times");
 const { width: DEVICE_WIDTH } = getDeviceInfo();
-const PERMS = ["device:os.bg_service", "device:os.notification"];
 
 Page(
   BasePage({
@@ -53,7 +52,7 @@ Page(
         text_size: px(24),
         normal_color: 0x1a9b3c,
         press_color: 0x12702b,
-        click_func: () => this.startTest(),
+        click_func: () => this.scheduleReminders(),
       });
 
       this.loadLocation();
@@ -70,50 +69,31 @@ Page(
           this.setLoc("📍 location unavailable");
         });
     },
-    startTest() {
-      // bg_service is a dynamic permission — must be granted at runtime first.
-      const status = queryPermission({ permissions: PERMS });
-      logger.log("perm status => " + JSON.stringify(status));
-      if (status.every((s) => s === 2)) {
-        this.launchService();
-        return;
-      }
-      this.setStatus("Requesting permission…");
-      requestPermission({
-        permissions: PERMS,
-        callback: (res) => {
-          logger.log("perm result => " + JSON.stringify(res));
-          if (res && res.every((s) => s === 2)) {
-            this.launchService();
-          } else {
-            this.setStatus("Permission denied ❌\n" + JSON.stringify(res));
-          }
-        },
-      });
-    },
-    launchService() {
-      this.setStatus("Starting service…");
-      try {
-        const code = start({
-          file: "app-service/reminder",
-          param: "5",
-          complete_func: (info) => {
-            logger.log("start cb => " + JSON.stringify(info));
-            this.setStatus(
-              info && info.result
-                ? "Started ✅\nClose the app & lower wrist.\n5 banners, 30s apart."
-                : "Service FAILED ❌\n" + JSON.stringify(info)
-            );
-          },
+    scheduleReminders() {
+      this.setStatus("Scheduling…");
+      const { appId } = getPackageInfo();
+      const now = Math.round(Date.now() / 1000);
+      const ids = [];
+      for (let i = 1; i <= 5; i++) {
+        const t = now + i * 30; // 30s apart
+        const id = alarmMgr.set({
+          appid: appId,
+          url: "app-service/reminder",
+          time: t,
+          date: t,
+          param: "#" + i + " of 5",
+          repeat_type: alarmMgr.REPEAT_ONCE,
+          store: true,
         });
-        logger.log("start() returned " + JSON.stringify(code));
-        if (code !== 0) {
-          this.setStatus("start() code: " + JSON.stringify(code) + " (not 0)");
-        }
-      } catch (e) {
-        logger.error("start threw " + e);
-        this.setStatus("start() threw:\n" + (e && e.message ? e.message : e));
+        ids.push(id);
       }
+      logger.log("alarm ids => " + JSON.stringify(ids));
+      const ok = ids.every((x) => x && x !== 0);
+      this.setStatus(
+        (ok ? "Scheduled 5 alarms ✅" : "Some FAILED ❌") +
+          "\n30s apart (~2.5 min).\nClose the app & lower wrist.\nids: " +
+          JSON.stringify(ids)
+      );
     },
     setLoc(text) {
       this.state.locText && this.state.locText.setProperty(hmUI.prop.MORE, { text });

@@ -5,8 +5,8 @@
     "appName": "Prayer Times",
     "appType": "app",
     "version": {
-      "code": 9,
-      "name": "1.1.0"
+      "code": 11,
+      "name": "1.1.1"
     },
     "icon": "icon.png",
     "vender": "zepp",
@@ -16,7 +16,7 @@
     "data:os.device.info",
     "device:os.local_storage",
     "device:os.notification",
-    "device:os.bg_service"
+    "device:os.alarm"
   ],
   "runtime": {
     "apiVersion": {
