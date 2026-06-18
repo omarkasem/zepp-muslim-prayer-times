@@ -14,7 +14,8 @@
   },
   "permissions": [
     "data:os.device.info",
-    "device:os.local_storage"
+    "device:os.local_storage",
+    "device:os.geolocation"
   ],
   "runtime": {
     "apiVersion": {
@@ -42,6 +43,30 @@
         }
       ],
       "designWidth": 480
+    },
+    "bip6": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/bip6/home/index.page"
+          ]
+        }
+      },
+      "platforms": [
+        {
+          "name": "amazfit-bip-6",
+          "deviceSource": 9765120
+        },
+        {
+          "name": "amazfit-bip-6",
+          "deviceSource": 9765121
+        },
+        {
+          "name": "amazfit-bip-6",
+          "deviceSource": 10158337
+        }
+      ],
+      "designWidth": 390
     }
   },
   "i18n": {
