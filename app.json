@@ -5,8 +5,8 @@
     "appName": "Prayer Times",
     "appType": "app",
     "version": {
-      "code": 6,
-      "name": "1.0.6"
+      "code": 9,
+      "name": "1.1.0"
     },
     "icon": "icon.png",
     "vender": "zepp",
@@ -14,7 +14,9 @@
   },
   "permissions": [
     "data:os.device.info",
-    "device:os.local_storage"
+    "device:os.local_storage",
+    "device:os.notification",
+    "device:os.bg_service"
   ],
   "runtime": {
     "apiVersion": {
@@ -34,6 +36,11 @@
         },
         "app-side": {
           "path": "app-side/index"
+        },
+        "app-service": {
+          "services": [
+            "app-service/reminder"
+          ]
         }
       },
       "platforms": [
@@ -55,6 +62,11 @@
         },
         "app-side": {
           "path": "app-side/index"
+        },
+        "app-service": {
+          "services": [
+            "app-service/reminder"
+          ]
         }
       },
       "platforms": [
