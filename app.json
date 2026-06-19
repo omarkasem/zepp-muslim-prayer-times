@@ -32,7 +32,10 @@
       "module": {
         "page": {
           "pages": [
-            "page/gt/home/index.page"
+            "page/gt/home/index.page",
+            "page/gt/settings/index.page",
+            "page/gt/settings-picker/index.page",
+            "page/gt/qibla/index.page"
           ]
         },
         "app-side": {
