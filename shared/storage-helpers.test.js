@@ -29,7 +29,7 @@ describe('sanitizeSettings', () => {
   });
 
   it('preserves valid settings', () => {
-    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angleBased', reminderOffsetMin: 15 };
+    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angle_based', reminderOffsetMin: 15 };
     expect(sanitizeSettings(valid)).toEqual(valid);
   });
 

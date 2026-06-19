@@ -2,15 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { computePrayerTimes } from './prayer-times';
 import fs from 'fs';
 
-let PrayTimes;
-try {
-  // Load the original PrayTimes.js for mathematical equivalence testing
-  const orig = fs.readFileSync('./scratch-praytimes.js', 'utf8');
-  eval(orig);
-  PrayTimes = global.PrayTimes || PrayTimes; 
-} catch (e) {
-  // Ignore if file not found
-}
+const orig = fs.readFileSync('./shared/__tests__/praytimes-reference.js', 'utf8');
+const getPrayTimes = new Function(orig + '\nreturn PrayTimes;');
+const PrayTimes = getPrayTimes();
 
 describe('computePrayerTimes', () => {
   const cairoLat = 30.0444;
@@ -18,7 +12,7 @@ describe('computePrayerTimes', () => {
   const cairoDate = new Date(Date.UTC(2023, 8, 1)); // Sept 1, 2023
 
   it('matches the original PrayTimes.js algorithm (Cairo, Egyptian)', () => {
-    if (!PrayTimes) return;
+    expect(PrayTimes).toBeDefined();
 
     const pt = new PrayTimes('Egypt');
     pt.tune({ fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 });
@@ -83,6 +77,23 @@ describe('computePrayerTimes', () => {
     expect(Number.isNaN(times.isha)).toBe(false);
     expect(times.fajr).toBeLessThan(times.dhuhr);
     expect(times.isha).toBeGreaterThan(times.maghrib);
+  });
+
+  it('one_seventh and middle_of_night produce different times', () => {
+    const lat = 69.6492;
+    const lon = 18.9553;
+    const date = new Date(Date.UTC(2023, 5, 21));
+
+    const middle = computePrayerTimes({
+      lat, lon, timezone: 'Europe/Oslo', date, method: 'mwl', madhab: 'standard', highLatRule: 'middle_of_night'
+    });
+
+    const seventh = computePrayerTimes({
+      lat, lon, timezone: 'Europe/Oslo', date, method: 'mwl', madhab: 'standard', highLatRule: 'one_seventh'
+    });
+
+    expect(seventh.fajr).not.toEqual(middle.fajr);
+    expect(seventh.isha).not.toEqual(middle.isha);
   });
 
   it('Rejects invalid input', () => {

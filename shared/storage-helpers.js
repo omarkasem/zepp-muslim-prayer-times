@@ -22,7 +22,7 @@ export function sanitizeSettings(settings) {
   const madhabs = ['standard', 'hanafi'];
   const madhab = madhabs.includes(settings.madhab) ? settings.madhab : DEFAULT_SETTINGS.madhab;
   
-  const rules = ['none', 'middleOfTheNight', 'seventhOfTheNight', 'angleBased'];
+  const rules = ['none', 'middle_of_night', 'one_seventh', 'angle_based'];
   const highLatRule = rules.includes(settings.highLatRule) ? settings.highLatRule : DEFAULT_SETTINGS.highLatRule;
   
   let offset = DEFAULT_SETTINGS.reminderOffsetMin;

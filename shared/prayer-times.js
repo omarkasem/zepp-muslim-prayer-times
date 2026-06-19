@@ -20,6 +20,7 @@ const fixAngle = (a) => fix(a, 360);
 const fixHour = (a) => fix(a, 24);
 
 export function computePrayerTimes({ lat, lon, timezone, date, method, madhab, highLatRule }) {
+  // `timezone` is intentionally unused; times are returned as absolute epoch-ms instants
   if (typeof lat !== 'number' || typeof lon !== 'number' || !(date instanceof Date)) {
     throw new Error('Invalid input: lat, lon must be numbers, date must be a Date object');
   }
@@ -138,10 +139,10 @@ export function computePrayerTimes({ lat, lon, timezone, date, method, madhab, h
     const nightTime = fixHour(times.sunrise - times.sunset);
     
     const adjustHLTime = (time, base, angle, night, direction) => {
-      let portion = 1 / 2; // middleOfTheNight
-      if (highLatRule === 'angle_based' || highLatRule === 'angleBased') {
+      let portion = 1 / 2; // middle_of_night
+      if (highLatRule === 'angle_based') {
         portion = (1 / 60) * angle;
-      } else if (highLatRule === 'one_seventh' || highLatRule === 'oneSeventh') {
+      } else if (highLatRule === 'one_seventh') {
         portion = 1 / 7;
       }
 
@@ -166,9 +167,6 @@ export function computePrayerTimes({ lat, lon, timezone, date, method, madhab, h
 
   const result = {};
   for (let k in times) {
-    // Add 0.5 minutes for rounding to nearest minute (as PrayTimes does internally before stringifying)
-    // Actually, returning exact ms is better so we don't skew exact values. We will skip 0.5 min addition, 
-    // unless tests demand it. We will leave it exact.
     result[k] = baseTimestamp + Math.floor(times[k] * 60 * 60 * 1000);
   }
 
