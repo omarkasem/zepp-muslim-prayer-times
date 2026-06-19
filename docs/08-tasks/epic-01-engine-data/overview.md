@@ -16,12 +16,12 @@ in order. Complex steps link to a `feature-*.md` with the full spec — open tha
 - [x] Confirm `app.json` page entries are valid (no broken paths); `settings`/`qibla` pages are added in Epic 02.
 
 ## Step 2 — `shared/storage.js`
-- [ ] Export `getLocation/setLocation`, `getSettings/setSettings`, `getAlarmIds/setAlarmIds`,
+- [x] Export `getLocation/setLocation`, `getSettings/setSettings`, `getAlarmIds/setAlarmIds`,
       `getScheduledThrough/setScheduledThrough`.
-- [ ] Storage keys exactly: `location`, `settings`, `alarmIds`, `scheduledThrough`.
-- [ ] Settings defaults: `{ method: <sensible default>, madhab: "standard", highLatRule: "none", reminderOffsetMin: 0 }`.
-- [ ] Validate setters: reject `location` without numeric `lat`/`lon` or empty `timezone`; clamp unknown setting values to defaults.
-- [ ] Isolate the `@zos/storage` I/O from pure default/validation helpers, and unit-test the helpers in Node.
+- [x] Storage keys exactly: `location`, `settings`, `alarmIds`, `scheduledThrough`.
+- [x] Settings defaults: `{ method: <sensible default>, madhab: "standard", highLatRule: "none", reminderOffsetMin: 0 }`.
+- [x] Validate setters: reject `location` without numeric `lat`/`lon` or empty `timezone`; clamp unknown setting values to defaults.
+- [x] Isolate the `@zos/storage` I/O from pure default/validation helpers, and unit-test the helpers in Node.
 
 ## Step 3 — `shared/methods.js`
 - [ ] Preset map keyed by id (`umm_al_qura`, `mwl`, `egyptian`, `isna`, `karachi`) with Fajr/Isha params.
