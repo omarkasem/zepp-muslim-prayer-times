@@ -1,6 +1,6 @@
 # Epic 01 — Engine & Data — Overview
 
-**Status:** not started.
+**Status:** done.
 **How to use:** in each AI-coder session, point at this file and say *"implement Step N"*. Do the steps
 in order. Complex steps link to a `feature-*.md` with the full spec — open that too for those steps.
 **Source of truth:** `epic-spec.md`. Do not expand scope beyond it.
@@ -35,23 +35,23 @@ in order. Complex steps link to a `feature-*.md` with the full spec — open tha
 - [x] Tests per the feature file (incl. a non-local timezone and a high-latitude case).
 
 ## Step 5 — `shared/hijri.js`
-- [ ] `toHijri(date) → { day, month, monthName, year }` (arithmetic/tabular algorithm).
-- [ ] Tests: a few known gregorian→hijri reference dates convert correctly.
+- [x] `toHijri(date) → { day, month, monthName, year }` (arithmetic/tabular algorithm).
+- [x] Tests: a few known gregorian→hijri reference dates convert correctly.
 
 ## Step 6 — `shared/qibla.js`
-- [ ] `qiblaBearing({ lat, lon }) → degrees` (0–360, great-circle to 21.4225, 39.8262).
-- [ ] Tests: known cities (e.g. Cairo ≈ 136°, plus one or two more) within ±1°.
+- [x] `qiblaBearing({ lat, lon }) → degrees` (0–360, great-circle to 21.4225, 39.8262).
+- [x] Tests: known cities (e.g. Cairo ≈ 136°, plus one or two more) within ±1°.
 
 ## Step 7 — `shared/scheduler.js`  →  full spec: `feature-02-scheduler.md`
-- [ ] Implement `planAlarms({...})` → `{ cancelIds, create, scheduledThrough }` (pure, no side effects).
-- [ ] `create[].time` = epoch-seconds, future only, `prayerInstant − reminderOffsetMin`.
-- [ ] Inject `computeTimes`; cover today's remaining + window-days; full-replace cancel semantics; idempotent.
-- [ ] Tests per the feature file (mid-day, offset, rollover, idempotency).
+- [x] Implement `planAlarms({...})` → `{ cancelIds, create, scheduledThrough }` (pure, no side effects).
+- [x] `create[].time` = epoch-seconds, future only, `prayerInstant − reminderOffsetMin`.
+- [x] Inject `computeTimes`; cover today's remaining + window-days; full-replace cancel semantics; idempotent.
+- [x] Tests per the feature file (mid-day, offset, rollover, idempotency).
 
 ## Step 8 — `app-side/index.js` location cleanup
-- [ ] Keep `GET_LOCATION` (ipwho.is → ipapi.co fallback, defensive `res.body` parse).
-- [ ] Ensure the returned shape is exactly `{ lat, lon, city, country, timezone }`.
-- [ ] (Caching into `storage.location` happens page-side in Epic 02 — here, just return the clean shape.)
+- [x] Keep `GET_LOCATION` (ipwho.is → ipapi.co fallback, defensive `res.body` parse).
+- [x] Ensure the returned shape is exactly `{ lat, lon, city, country, timezone }`.
+- [x] (Caching into `storage.location` happens page-side in Epic 02 — here, just return the clean shape.)
 
 ---
 
