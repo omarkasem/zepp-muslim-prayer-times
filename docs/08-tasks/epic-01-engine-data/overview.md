@@ -24,9 +24,9 @@ in order. Complex steps link to a `feature-*.md` with the full spec — open tha
 - [x] Isolate the `@zos/storage` I/O from pure default/validation helpers, and unit-test the helpers in Node.
 
 ## Step 3 — `shared/methods.js`
-- [ ] Preset map keyed by id (`umm_al_qura`, `mwl`, `egyptian`, `isna`, `karachi`) with Fajr/Isha params.
-- [ ] `getMethod(id)` returns the preset, or the default for unknown ids.
-- [ ] Tests: every preset has the required params; `getMethod("garbage")` returns the default.
+- [x] Preset map keyed by id (`umm_al_qura`, `mwl`, `egyptian`, `isna`, `karachi`) with Fajr/Isha params.
+- [x] `getMethod(id)` returns the preset, or the default for unknown ids.
+- [x] Tests: every preset has the required params; `getMethod("garbage")` returns the default.
 
 ## Step 4 — `shared/prayer-times.js`  →  full spec: `feature-01-prayer-times.md`
 - [ ] Implement `computePrayerTimes({lat, lon, timezone, date, method, madhab, highLatRule})` → 5 epoch-ms instants.
