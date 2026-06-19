@@ -11,8 +11,9 @@ Coder-ready translation into Zepp `@zos/ui` (`hmUI`). Source design: `designs/qi
    Qibla, the arrow turns the accent green and a Kaaba icon appears (where the text pill was).
 
 ## Target & units
-- Bip 6, **390×390 round**, `designWidth: 390` → `px()` ~1:1. Use the full circle. Keep text in the 342px safe area.
-- Background: true AMOLED black `0x000000`.
+- Bip 6, **390 (W) × 450 (H), rectangular**, `designWidth: 390` → `px()` is 1:1. Hide the system status bar; use the full screen.
+- The compass doesn't need to be round-screen — center the dial/arrow and size it to `min(390, available height)`. Vertical center ≈ y 225 (not 195).
+- Background: true AMOLED black `0x000000`. Use the bumped fonts from `lib/theme.js`.
 
 ## Page / target files
 - `page/bip6/qibla/index.page.js` (single page; swaps between the two states based on calibration status).
@@ -84,7 +85,7 @@ Coder-ready translation into Zepp `@zos/ui` (`hmUI`). Source design: `designs/qi
   status. The Calibrate state's exit condition depends on this; if absent, use the timed-fallback above.
 
 ## hmUI mapping notes / gotchas
-- Keep the arrow + dial centered on `(195,195)`; everything inside the 342px circle.
+- Center the arrow + dial on the screen (≈ `(195, 225)` on 390×450); use the full rectangle, no circle insets.
 - Flatten opacities; no glow. `page/bip6/...`; `gt` (480px) re-layout is Epic 03 (same logic).
 - All values come from `shared/qibla.js` + the sensor — no recomputation logic in the layout beyond reading them.
 
@@ -93,4 +94,4 @@ Coder-ready translation into Zepp `@zos/ui` (`hmUI`). Source design: `designs/qi
 - Active state shows a large arrow that rotates live to point at the Qibla as the watch turns.
 - Aligned (±6°): arrow turns green and the Kaaba icon appears.
 - Bearing degrees, cardinal, and city display correctly; sensor stops on leaving the page.
-- Everything fits the round Bip 6 screen.
+- Everything fits the 390×450 rectangular Bip 6 screen, comfortably readable.

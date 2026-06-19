@@ -5,10 +5,12 @@ Coder-ready translation of the chosen design into Zepp `@zos/ui` (`hmUI`). Sourc
 the HTML is reference only (Zepp does not run HTML — no Tailwind, no Material Symbols, no CSS glow/opacity).
 
 ## Target & units
-- Device: Amazfit Bip 6, **390×390 round**, `designWidth: 390` → `px()` is ~1:1. Wrap all coords in `px()`.
-- **Circular safe area:** keep all text/icons inside a **342px centered circle** (center `(195,195)`),
-  i.e. ~24px inset from each edge. Middle rows can be wider (circle is widest at center); top/bottom rows narrower.
+- Device: Amazfit Bip 6, **390 (W) × 450 (H), RECTANGULAR** (not round). `designWidth: 390` → `px()` is 1:1. Wrap all coords in `px()`.
+- **Rectangular full-screen layout:** use the full 390×450 area with ~24px side margins. No round-circle insets,
+  no corner-clipping concerns. Center content horizontally; distribute vertically across the 450px height.
+- **Hide the Zepp system status bar** (app name + clock) so the app owns the full screen; otherwise reserve its height at the top.
 - Background: true AMOLED black `0x000000` (the design's `.watch-face` is `#000000`; ignore the `#121414` token for the bg).
+- **Fonts:** the Stitch mock's sizes are too small physically — use the bumped sizes in `lib/theme.js`, not the raw mock px values below. The mock sizes are kept here only for relative hierarchy.
 
 ## Data sources (all already built in Epic 01)
 - City: `storage.getLocation().city` (fallback `"—"`).
@@ -43,18 +45,24 @@ the HTML is reference only (Zepp does not run HTML — no Tailwind, no Material 
 
 Font is "Plus Jakarta Sans" in the design; use the watch's default system font (custom fonts optional later).
 
-## Layout (top → bottom, target coords on 390×390)
-1. **Top bar** (centered):
-   - `📍 Cairo` row at y≈58: pin icon (12–14px) + city text (`label-sm`, color `0x4edea3`), centered.
-   - Hijri date at y≈80: `"12 DHUL-HIJJAH 1447"` (10px, `0xbbcabf`, uppercase), centered.
-2. **Prayer list** (5 rows, centered vertically around y=195, ~6px gaps, horizontal padding so text stays in the circle, x≈48→342):
-   - Inactive row = name left (`label-sm`) + time right (`body-lg`), both `0x707070`. Row height ~28.
-   - Order & sample data: Fajr 4:12 (y≈120) · Dhuhr 12:01 (y≈152) · **Asr [active] (y≈188)** · Maghrib 6:48 (y≈248) · Isha 8:10 (y≈280).
-   - **Active (next) row** = a full-width **rounded pill** (`FILL_RECT`, radius = height/2, fill `0x33240a`), height ~48, centered at the widest part of the circle:
-     - Left stack: prayer name (`label-sm`, `0xffb95f`) above `"Next in 1h 23m"` (9px, `0xffb95f`).
-     - Right: time (`headline-md`, `0xffb95f`).
-3. **Bottom bar** (centered, y≈332, ~32px gap): qibla compass icon (`0x10b981`) + settings gear icon (`0xbbcabf`), ~20px each.
-4. **Outer progress ring** (optional, see below): thin ~2px emerald arc near the edge.
+## Layout (top → bottom, on the 390×450 rectangle)
+Coordinates below are **proportional guidance**, not literal — distribute across the full 450px height and
+re-tune on-device. Anchor the bottom nav to `DEVICE_HEIGHT`, not a fixed 332. Account for the status bar
+(hidden, or reserve ~top 48px).
+1. **Top bar** (centered, below the status bar):
+   - `📍 Cairo` row: pin icon + city text (bumped `label-sm`, color `0x4edea3`), centered.
+   - Hijri date below it: `"12 DHUL-HIJJAH 1447"` (small, `0xbbcabf`, uppercase), centered.
+2. **Prayer list** (5 rows, spread down the middle of the screen with comfortable gaps; full-width with ~24px side margins):
+   - Inactive row = name left + time right, both `0x707070`. Use the bumped row fonts (readable at a glance).
+   - Order: Fajr · Dhuhr · **Asr [active]** · Maghrib · Isha (sample data).
+   - **Active (next) row** = a full-width **rounded pill** (`FILL_RECT`, radius = height/2, fill `0x33240a`):
+     - Left stack: prayer name (`0xffb95f`) above `"Next in 1h 23m"` (`0xffb95f`).
+     - Right: time (larger, `0xffb95f`).
+3. **Bottom nav** (anchored near `DEVICE_HEIGHT - margin`, centered, generous gap): qibla compass + settings gear.
+   **Make these clearly visible and tappable** — large tap targets (≥ ~44px), bigger icons, optionally text labels.
+   (The first build's 20px dark icons were invisible.)
+4. **Outer progress indicator** (optional): a thin emerald accent; on a rectangle this can be a top/bottom bar
+   or a small arc rather than a full ring. Omit if time-boxed — not load-bearing.
 
 ## States
 - **Highlight = computed, not hardcoded.** The pill moves to whichever prayer is next; all others render inactive.
@@ -83,12 +91,12 @@ Font is "Plus Jakarta Sans" in the design; use the watch's default system font (
 
 ## hmUI mapping notes / gotchas
 - No opacity/shadow/Tailwind — use the flattened colors and a `FILL_RECT` pill.
-- Keep every element inside the 342px circle; verify on the simulator and the real Bip 6.
-- This layout is for `page/bip6/home/`. The `gt` (480px) layout reuses the **same logic**, re-laid-out in Epic 03.
+- Lay out against the full **390×450 rectangle** (no circle insets); verify on the real Bip 6.
+- This layout is for `page/bip6/home/`. The `gt` layout reuses the **same logic**, re-laid-out in Epic 03.
 - All displayed values come from `shared/` — no recomputation or `@zos` calls inside layout code beyond reading storage.
 
 ## Acceptance
 - Five prayers render with the correct next-prayer highlighted and a live, minute-updating countdown.
-- City + hijri date shown; all content inside the round safe area on the Bip 6.
-- Qibla and Settings icons navigate correctly.
+- City + hijri date shown; all content fits the 390×450 screen, comfortably readable.
+- Qibla and Settings nav are visible, large enough, and navigate correctly.
 - After-Isha, loading, and location-unavailable states behave as specified.

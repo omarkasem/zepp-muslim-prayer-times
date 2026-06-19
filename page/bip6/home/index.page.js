@@ -20,11 +20,21 @@ const PRAYERS = [
   { key: "isha", label: "Isha" },
 ];
 
-const ROW_Y = [120, 152, 188, 248, 280];
-const ROW_HEIGHT_INACTIVE = 28;
-const PILL_HEIGHT = 48;
-const PILL_X = 48;
-const PILL_W = 294;
+// Bip 6 is 390x450 rectangular. Reserve the top for the system status bar
+// (best-effort hide via hmUI.setStatusBarVisible(false) in onInit; if it stays
+// visible, the reserve prevents content from sitting under it).
+const STATUS_BAR_RESERVE = 40;
+const SIDE_MARGIN = 16;
+const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
+const NAV_HEIGHT = 60;
+const NAV_Y = DEVICE_HEIGHT - NAV_HEIGHT - 10;
+const LIST_TOP = 110 + STATUS_BAR_RESERVE;
+const LIST_BOTTOM = NAV_Y - 10;
+const LIST_HEIGHT = LIST_BOTTOM - LIST_TOP;
+const ROW_HEIGHT_INACTIVE = 40;
+const PILL_HEIGHT = 64;
+const PILL_X = SIDE_MARGIN;
+const PILL_W = CONTENT_W;
 const PILL_RADIUS = 24;
 
 function formatTime(epochMs, timeFormat) {
@@ -69,6 +79,7 @@ Page(
     },
 
     onInit() {
+      try { hmUI.setStatusBarVisible(false); } catch (e) {}
       this._firstBuild = true;
       const cached = getLocation();
       if (cached) {
@@ -270,12 +281,12 @@ Page(
 
       if (phase === "loading") {
         this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(20),
-          y: (DEVICE_HEIGHT - px(40)) / 2,
-          w: DEVICE_WIDTH - px(40),
+          x: px(SIDE_MARGIN),
+          y: px(STATUS_BAR_RESERVE + 40),
+          w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
           h: px(40),
           color: COLORS.TEXT_MUTED,
-          text_size: px(FONT_SIZES.LABEL_SM),
+          text_size: px(FONT_SIZES.BODY_LG),
           align_h: hmUI.align.CENTER_H,
           align_v: hmUI.align.CENTER_V,
           text: "Getting location…",
@@ -286,12 +297,12 @@ Page(
 
       if (phase === "unavailable") {
         this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(20),
-          y: (DEVICE_HEIGHT - px(40)) / 2,
-          w: DEVICE_WIDTH - px(40),
+          x: px(SIDE_MARGIN),
+          y: px(STATUS_BAR_RESERVE + 40),
+          w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
           h: px(40),
           color: COLORS.TEXT_MUTED,
-          text_size: px(FONT_SIZES.LABEL_SM),
+          text_size: px(FONT_SIZES.BODY_LG),
           align_h: hmUI.align.CENTER_H,
           align_v: hmUI.align.CENTER_V,
           text_style: hmUI.text_style.WRAP,
@@ -307,10 +318,10 @@ Page(
       const hijri = toHijri(today);
       const hijriText = (hijri.day + " " + hijri.monthName + " " + hijri.year).toUpperCase();
 
-      const cityY = 58;
-      const cityIconSize = 14;
-      const cityTextW = px(140);
-      const cityGroupW = cityIconSize + 6 + cityTextW;
+      const cityY = STATUS_BAR_RESERVE + 18;
+      const cityIconSize = 22;
+      const cityTextW = 200;
+      const cityGroupW = cityIconSize + 8 + cityTextW;
       const cityX = (DESIGN_WIDTH - cityGroupW) / 2;
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
         x: px(cityX),
@@ -320,10 +331,10 @@ Page(
         src: "ic_pin.png",
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(cityX + cityIconSize + 6),
+        x: px(cityX + cityIconSize + 8),
         y: px(cityY - 2),
-        w: cityTextW,
-        h: px(20),
+        w: px(cityTextW),
+        h: px(cityIconSize + 4),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_v: hmUI.align.CENTER_V,
@@ -331,10 +342,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(80),
-        w: DEVICE_WIDTH - px(40),
-        h: px(14),
+        x: px(SIDE_MARGIN),
+        y: px(cityY + 32),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(24),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.SMALL),
         align_h: hmUI.align.CENTER_H,
@@ -346,8 +357,9 @@ Page(
       const times = this.state.times;
       const tf = this.state.timeFormat;
       this._rowWidgets = [];
+      const step = LIST_HEIGHT / (PRAYERS.length - 1);
       for (let i = 0; i < PRAYERS.length; i++) {
-        const y = ROW_Y[i];
+        const y = Math.round(LIST_TOP + i * step);
         const prayer = PRAYERS[i];
         const isActive = (i === this.state.nextIndex);
         const instant = isActive && this.state.isTomorrow && this.state.tomorrowFajr
@@ -368,14 +380,14 @@ Page(
 
         const labelColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
         const timeColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const labelSize = FONT_SIZES.LABEL_SM;
+        const labelSize = isActive ? FONT_SIZES.LABEL_SM : FONT_SIZES.BODY_LG;
         const timeSize = isActive ? FONT_SIZES.HEADLINE_MD : FONT_SIZES.BODY_LG;
 
         const labelId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(60),
-          y: px(y - (isActive ? 10 : rowH / 2)),
+          x: px(SIDE_MARGIN + 20),
+          y: px(y - (isActive ? 14 : rowH / 2)),
           w: px(120),
-          h: px(isActive ? 18 : rowH),
+          h: px(isActive ? 24 : rowH),
           color: labelColor,
           text_size: px(labelSize),
           align_v: hmUI.align.CENTER_V,
@@ -383,10 +395,10 @@ Page(
         }));
 
         const timeId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(200),
-          y: px(y - (isActive ? 12 : rowH / 2)),
-          w: px(140),
-          h: px(isActive ? 24 : rowH),
+          x: px(DEVICE_WIDTH - SIDE_MARGIN - 160 - 20),
+          y: px(y - (isActive ? 18 : rowH / 2)),
+          w: px(160),
+          h: px(isActive ? 32 : rowH),
           color: timeColor,
           text_size: px(timeSize),
           align_h: hmUI.align.RIGHT,
@@ -397,12 +409,12 @@ Page(
         let countdownId = -1;
         if (isActive) {
           countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(60),
-            y: px(y + 8),
-            w: px(160),
-            h: px(12),
+            x: px(SIDE_MARGIN + 20),
+            y: px(y + 14),
+            w: px(220),
+            h: px(20),
             color: COLORS.NEXT_PRAYER_TEXT,
-            text_size: px(FONT_SIZES.XSMALL),
+            text_size: px(FONT_SIZES.SMALL),
             align_v: hmUI.align.CENTER_V,
             text: this.state.countdownText,
           }));
@@ -435,23 +447,23 @@ Page(
         });
         const labelColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
         const timeColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const labelSize = FONT_SIZES.LABEL_SM;
+        const labelSize = isActive ? FONT_SIZES.LABEL_SM : FONT_SIZES.BODY_LG;
         const timeSize = isActive ? FONT_SIZES.HEADLINE_MD : FONT_SIZES.BODY_LG;
         hmUI.updateWidget(w.labelId, hmUI.widget.TEXT, {
-          x: px(60),
-          y: px(w.y - (isActive ? 10 : ROW_HEIGHT_INACTIVE / 2)),
+          x: px(SIDE_MARGIN + 20),
+          y: px(w.y - (isActive ? 14 : ROW_HEIGHT_INACTIVE / 2)),
           w: px(120),
-          h: px(isActive ? 18 : ROW_HEIGHT_INACTIVE),
+          h: px(isActive ? 24 : ROW_HEIGHT_INACTIVE),
           color: labelColor,
           text_size: px(labelSize),
           align_v: hmUI.align.CENTER_V,
           text: PRAYERS[i].label,
         });
         hmUI.updateWidget(w.timeId, hmUI.widget.TEXT, {
-          x: px(200),
-          y: px(w.y - (isActive ? 12 : ROW_HEIGHT_INACTIVE / 2)),
-          w: px(140),
-          h: px(isActive ? 24 : ROW_HEIGHT_INACTIVE),
+          x: px(DEVICE_WIDTH - SIDE_MARGIN - 160 - 20),
+          y: px(w.y - (isActive ? 18 : ROW_HEIGHT_INACTIVE / 2)),
+          w: px(160),
+          h: px(isActive ? 32 : ROW_HEIGHT_INACTIVE),
           color: timeColor,
           text_size: px(timeSize),
           align_h: hmUI.align.RIGHT,
@@ -460,24 +472,24 @@ Page(
         });
         if (w.countdownId !== -1) {
           hmUI.updateWidget(w.countdownId, hmUI.widget.TEXT, {
-            x: px(60),
-            y: px(w.y + 8),
-            w: px(160),
-            h: px(12),
+            x: px(SIDE_MARGIN + 20),
+            y: px(w.y + 14),
+            w: px(220),
+            h: px(20),
             color: COLORS.NEXT_PRAYER_TEXT,
-            text_size: px(FONT_SIZES.XSMALL),
+            text_size: px(FONT_SIZES.SMALL),
             align_v: hmUI.align.CENTER_V,
             text: this.state.countdownText,
           });
         }
         if (isActive && w.countdownId === -1) {
           w.countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(60),
-            y: px(w.y + 8),
-            w: px(160),
-            h: px(12),
+            x: px(SIDE_MARGIN + 20),
+            y: px(w.y + 14),
+            w: px(220),
+            h: px(20),
             color: COLORS.NEXT_PRAYER_TEXT,
-            text_size: px(FONT_SIZES.XSMALL),
+            text_size: px(FONT_SIZES.SMALL),
             align_v: hmUI.align.CENTER_V,
             text: this.state.countdownText,
           }));
@@ -489,30 +501,86 @@ Page(
     },
 
     renderBottomNav() {
-      const iconSize = 20;
-      const y = 332;
-      const qiblaX = 168;
-      const gearX = 202;
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(qiblaX),
-        y: px(y),
-        w: px(iconSize),
-        h: px(iconSize),
-        normal_src: "ic_compass.png",
-        press_src: "ic_compass.png",
+      const btnW = 170;
+      const btnH = NAV_HEIGHT;
+      const gap = 12;
+      const totalW = btnW * 2 + gap;
+      const startX = (DEVICE_WIDTH - totalW) / 2;
+
+      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+        x: px(startX),
+        y: px(NAV_Y),
+        w: px(btnW),
+        h: px(btnH),
+        radius: px(btnH / 2),
+        color: COLORS.CARD,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
+        x: px(startX + 16),
+        y: px(NAV_Y + (btnH - 28) / 2),
+        w: px(28),
+        h: px(28),
+        src: "ic_compass.png",
         color: COLORS.ACCENT_DEEP,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+        x: px(startX + 52),
+        y: px(NAV_Y),
+        w: px(btnW - 60),
+        h: px(btnH),
+        color: COLORS.ACCENT_DEEP,
+        text_size: px(FONT_SIZES.LABEL_SM),
+        align_v: hmUI.align.CENTER_V,
+        text: "Qibla",
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
+        x: px(startX),
+        y: px(NAV_Y),
+        w: px(btnW),
+        h: px(btnH),
+        normal_src: "ic_transparent.png",
+        press_src: "ic_transparent.png",
+        color: 0x000000,
         click_func: () => {
           push({ url: "page/bip6/qibla/index.page", params: {} });
         },
       }));
+
+      const gearX = startX + btnW + gap;
+      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+        x: px(gearX),
+        y: px(NAV_Y),
+        w: px(btnW),
+        h: px(btnH),
+        radius: px(btnH / 2),
+        color: COLORS.CARD,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
+        x: px(gearX + 16),
+        y: px(NAV_Y + (btnH - 28) / 2),
+        w: px(28),
+        h: px(28),
+        src: "ic_gear.png",
+        color: COLORS.TEXT_MUTED,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+        x: px(gearX + 52),
+        y: px(NAV_Y),
+        w: px(btnW - 60),
+        h: px(btnH),
+        color: COLORS.TEXT_PRIMARY,
+        text_size: px(FONT_SIZES.LABEL_SM),
+        align_v: hmUI.align.CENTER_V,
+        text: "Settings",
+      }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
         x: px(gearX),
-        y: px(y),
-        w: px(iconSize),
-        h: px(iconSize),
-        normal_src: "ic_gear.png",
-        press_src: "ic_gear.png",
-        color: COLORS.TEXT_MUTED,
+        y: px(NAV_Y),
+        w: px(btnW),
+        h: px(btnH),
+        normal_src: "ic_transparent.png",
+        press_src: "ic_transparent.png",
+        color: 0x000000,
         click_func: () => {
           push({ url: "page/bip6/settings/index.page", params: {} });
         },

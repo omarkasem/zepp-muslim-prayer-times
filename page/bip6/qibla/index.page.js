@@ -11,8 +11,13 @@ import { COLORS, FONT_SIZES } from "../../../lib/theme";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
 const DESIGN_WIDTH = 390;
-const CENTER_X = 195;
-const CENTER_Y = 195;
+const STATUS_BAR_RESERVE = 40;
+const SIDE_MARGIN = 16;
+const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
+const CENTER_X = DEVICE_WIDTH / 2;
+const COMPASS_CENTER_Y = 230;
+const DIAL_SIZE = 220;
+const ARROW_SIZE = 150;
 
 const ALIGN_THRESHOLD_DEG = 6;
 const CALIBRATE_FALLBACK_MS = 5000;
@@ -47,6 +52,7 @@ Page(
 
     onInit() {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
+      try { hmUI.setStatusBarVisible(false); } catch (e) {}
       const loc = getLocation();
       this.state.location = loc;
       if (loc) {
@@ -104,10 +110,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(24),
-        y: px(36),
-        w: px(20),
-        h: px(20),
+        x: px(SIDE_MARGIN),
+        y: px(STATUS_BAR_RESERVE + 8),
+        w: px(40),
+        h: px(40),
         normal_src: "ic_back.png",
         press_src: "ic_back.png",
         color: COLORS.ACCENT,
@@ -127,9 +133,9 @@ Page(
 
     renderNoLocation() {
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(160),
-        w: DEVICE_WIDTH - px(40),
+        x: px(SIDE_MARGIN),
+        y: px(STATUS_BAR_RESERVE + 80),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
         h: px(60),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
@@ -142,38 +148,38 @@ Page(
 
     renderCalibrate() {
       const cx = CENTER_X;
-      const cy = 140;
-      const ampX = 60;
-      const ampY = 26;
-      const dotCount = 24;
+      const cy = COMPASS_CENTER_Y - 40;
+      const ampX = 100;
+      const ampY = 44;
+      const dotCount = 28;
       for (let i = 0; i < dotCount; i++) {
         const t = (i / dotCount) * 2 * Math.PI;
         const dx = ampX * Math.sin(t);
         const dy = ampY * Math.sin(2 * t);
         this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-          x: px(cx + dx - 1.5),
-          y: px(cy + dy - 1.5),
-          w: px(3),
-          h: px(3),
-          radius: px(1.5),
+          x: px(cx + dx - 3),
+          y: px(cy + dy - 3),
+          w: px(6),
+          h: px(6),
+          radius: px(3),
           color: COLORS.ACCENT_DEEP,
         }));
       }
 
       this._glyphWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(cx - 18),
-        y: px(cy - 18),
-        w: px(36),
-        h: px(36),
+        x: px(cx - 30),
+        y: px(cy - 30),
+        w: px(60),
+        h: px(60),
         src: "ic_watch.png",
         color: COLORS.ACCENT,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(220),
-        w: DEVICE_WIDTH - px(40),
-        h: px(28),
+        x: px(SIDE_MARGIN),
+        y: px(cy + 120),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(36),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.HEADLINE_MD),
         align_h: hmUI.align.CENTER_H,
@@ -182,10 +188,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(252),
-        w: DEVICE_WIDTH - px(40),
-        h: px(18),
+        x: px(SIDE_MARGIN),
+        y: px(cy + 160),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(24),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.CENTER_H,
@@ -197,10 +203,10 @@ Page(
     renderActive() {
       const city = (this.state.location && this.state.location.city) ? this.state.location.city : "—";
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(40),
-        w: DEVICE_WIDTH - px(40),
-        h: px(18),
+        x: px(SIDE_MARGIN),
+        y: px(STATUS_BAR_RESERVE + 8),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(36),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.CENTER_H,
@@ -208,59 +214,57 @@ Page(
         text: city,
       }));
 
+      this.trackWidget(hmUI.createWidget(hmUI.widget.ARC, {
+        x: px(CENTER_X - DIAL_SIZE / 2),
+        y: px(COMPASS_CENTER_Y - DIAL_SIZE / 2),
+        w: px(DIAL_SIZE),
+        h: px(DIAL_SIZE),
+        start_angle: 0,
+        end_angle: 360,
+        line_width: px(3),
+        color: COLORS.QIBLA_DIAL,
+      }));
+
       this._kaabaWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(CENTER_X - 18),
-        y: px(70),
-        w: px(36),
-        h: px(36),
+        x: px(CENTER_X - 30),
+        y: px(COMPASS_CENTER_Y - 30),
+        w: px(60),
+        h: px(60),
         src: "ic_kaaba.png",
         color: COLORS.ACCENT,
         visible: false,
       }));
 
-      this.trackWidget(hmUI.createWidget(hmUI.widget.ARC, {
-        x: px(CENTER_X - 112),
-        y: px(CENTER_Y - 112),
-        w: px(224),
-        h: px(224),
-        start_angle: 0,
-        end_angle: 360,
-        line_width: px(2),
-        color: COLORS.QIBLA_DIAL,
-      }));
-
       const cardinals = [
-        { text: "N", x: CENTER_X - 9, y: CENTER_Y - 112 - 14 },
-        { text: "E", x: CENTER_X + 112 - 6, y: CENTER_Y - 10 },
-        { text: "S", x: CENTER_X - 7, y: CENTER_Y + 112 - 6 },
-        { text: "W", x: CENTER_X - 112 - 6, y: CENTER_Y - 10 },
+        { text: "N", x: CENTER_X - 12, y: COMPASS_CENTER_Y - DIAL_SIZE / 2 - 22 },
+        { text: "E", x: CENTER_X + DIAL_SIZE / 2 - 6, y: COMPASS_CENTER_Y - 14 },
+        { text: "S", x: CENTER_X - 10, y: COMPASS_CENTER_Y + DIAL_SIZE / 2 - 6 },
+        { text: "W", x: CENTER_X - DIAL_SIZE / 2 - 10, y: COMPASS_CENTER_Y - 14 },
       ];
       for (let i = 0; i < cardinals.length; i++) {
         const c = cardinals[i];
         this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
           x: px(c.x),
           y: px(c.y),
-          w: px(20),
-          h: px(20),
+          w: px(24),
+          h: px(28),
           color: COLORS.TEXT_MUTED,
-          text_size: px(18),
+          text_size: px(FONT_SIZES.LABEL_SM),
           align_h: hmUI.align.CENTER_H,
           align_v: hmUI.align.CENTER_V,
           text: c.text,
         }));
       }
 
-      const arrowW = 140;
-      const arrowH = 140;
       this._arrowWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(CENTER_X - arrowW / 2),
-        y: px(CENTER_Y - arrowH / 2),
-        w: px(arrowW),
-        h: px(arrowH),
+        x: px(CENTER_X - ARROW_SIZE / 2),
+        y: px(COMPASS_CENTER_Y - ARROW_SIZE / 2),
+        w: px(ARROW_SIZE),
+        h: px(ARROW_SIZE),
         src: "ic_qibla_arrow.png",
         color: COLORS.QIBLA_ARROW_SEARCHING,
         center_x: px(CENTER_X),
-        center_y: px(CENTER_Y),
+        center_y: px(COMPASS_CENTER_Y),
         angle: 0,
       }));
 
@@ -268,10 +272,10 @@ Page(
         ? Math.round(this.state.qiblaBearing) + "°"
         : "—";
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(298),
-        w: DEVICE_WIDTH - px(40),
-        h: px(48),
+        x: px(SIDE_MARGIN),
+        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 12),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(56),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.DISPLAY_TIME),
         align_h: hmUI.align.CENTER_H,
@@ -283,10 +287,10 @@ Page(
         ? bearingToCardinal(this.state.qiblaBearing) + " • MECCA"
         : "—";
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(346),
-        w: DEVICE_WIDTH - px(40),
-        h: px(18),
+        x: px(SIDE_MARGIN),
+        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 72),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(24),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.CENTER_H,
@@ -314,14 +318,14 @@ Page(
         self._figure8T = (self._figure8T || 0) + 0.12;
         const t = self._figure8T;
         const cx = CENTER_X;
-        const cy = 140;
-        const dx = 60 * Math.sin(t);
-        const dy = 26 * Math.sin(2 * t);
+        const cy = COMPASS_CENTER_Y - 40;
+        const dx = 100 * Math.sin(t);
+        const dy = 44 * Math.sin(2 * t);
         if (self._glyphWidget) {
           try {
             self._glyphWidget.setProperty(hmUI.prop.MORE, {
-              x: px(cx + dx - 18),
-              y: px(cy + dy - 18),
+              x: px(cx + dx - 30),
+              y: px(cy + dy - 30),
             });
           } catch (e) {}
         }

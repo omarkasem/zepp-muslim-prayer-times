@@ -5,14 +5,14 @@ Coder-ready translation into Zepp `@zos/ui` (`hmUI`). Source design: `designs/se
 
 ## Key structural change from the mockup
 The mockup shows the Calculation Method **expanded inline** (accordion), which makes one very long page.
-On a small round watch we use the **per-row-picker** pattern instead: the main Settings page is a short
+On a small watch we use the **per-row-picker** pattern instead: the main Settings page is a short
 scrollable list of rows; tapping a row that has multiple options opens its **own full-screen picker**
 (the radio list from the mockup), select → persist → back. The **Asr Madhab** toggle stays **inline**
 (only two options). Same visual style, far easier to use.
 
 ## Target & units
-- Bip 6, **390×390 round**, `designWidth: 390` → `px()` ~1:1. The page **scrolls vertically** (content > 390).
-- Rows are full-width rounded cards; keep inner text ~24px from the screen edges (round-corner clipping during scroll is normal/expected).
+- Bip 6, **390 (W) × 450 (H), rectangular**, `designWidth: 390` → `px()` is 1:1. The page **scrolls vertically** (content > 450). Hide the system status bar.
+- Rows are full-width rounded cards with ~24px side margins. Use the bumped fonts from `lib/theme.js` — make rows tall and readable.
 
 ## Pages / target files
 - `page/bip6/settings/index.page.js` — the main settings list.
@@ -78,10 +78,10 @@ Do this on each save. When returning to Home, Home re-reads settings and re-rend
   `ic_radio_on.png` (filled green), `ic_radio_off.png`. Segmented toggle = two `FILL_RECT`s + text.
 
 ## hmUI mapping notes / gotchas
-- Enable vertical page scrolling (content taller than 390); top-anchored vertical stack of row widgets.
+- Enable vertical page scrolling (content taller than 450) via `setScrollMode({ mode: SCROLL_MODE_FREE })` from `@zos/page`; top-anchored vertical stack of row widgets.
 - No opacity/shadow/Tailwind — use the flattened colors and `FILL_RECT` cards (radius via `radius` prop).
 - **Persist immediately on every change** and always run the recompute+reschedule On-change wiring.
-- Keep inner text inside the round safe area; verify scrolling on the real Bip 6.
+- Use ~24px side margins on the rectangular screen; verify scrolling reaches every row on the real Bip 6 (450 tall).
 - `page/bip6/...`; the `gt` (480px) re-layout is Epic 03, reusing identical logic + storage.
 
 ## Acceptance
@@ -89,4 +89,4 @@ Do this on each save. When returning to Home, Home re-reads settings and re-rend
 - Each multi-option setting opens a scrollable radio picker; current value preselected; selection persists.
 - Every change writes storage AND recomputes times + reschedules alarms.
 - Back returns to Home, which reflects the new settings.
-- All content usable within the round screen while scrolling.
+- All content usable within the 390×450 screen while scrolling; text comfortably readable.

@@ -12,10 +12,15 @@ import { COLORS, FONT_SIZES } from "../../../lib/theme";
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
 const DESIGN_WIDTH = 390;
 
-const CARD_X = 12;
-const CARD_W = 366;
+const STATUS_BAR_RESERVE = 40;
+const SIDE_MARGIN = 16;
+const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
+const HEADER_Y = STATUS_BAR_RESERVE + 8;
+const LIST_TOP = STATUS_BAR_RESERVE + 64;
+const ROW_HEIGHT = 64;
+const MADHAB_HEIGHT = 100;
 const CARD_RADIUS = 16;
-const CARD_GAP = 8;
+const CARD_GAP = 10;
 
 const HIGH_LAT_LABELS = {
   none: "None",
@@ -70,6 +75,7 @@ Page(
 
     onInit() {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
+      try { hmUI.setStatusBarVisible(false); } catch (e) {}
       this.state.settings = getSettings();
     },
 
@@ -85,10 +91,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(24),
-        y: px(36),
-        w: px(20),
-        h: px(20),
+        x: px(SIDE_MARGIN),
+        y: px(HEADER_Y),
+        w: px(40),
+        h: px(40),
         normal_src: "ic_back.png",
         press_src: "ic_back.png",
         color: COLORS.ACCENT,
@@ -98,10 +104,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(20),
-        y: px(30),
-        w: DEVICE_WIDTH - px(40),
-        h: px(32),
+        x: px(SIDE_MARGIN),
+        y: px(HEADER_Y + 4),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(36),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.HEADLINE),
         align_h: hmUI.align.CENTER_H,
@@ -111,7 +117,7 @@ Page(
 
       const s = this.state.settings;
 
-      let y = 88;
+      let y = LIST_TOP;
       y = this.renderNavRow(y, "Calculation Method", methodLabel(s.method), () => this.openPicker("method"));
 
       y = this.renderMadhabCard(y);
@@ -129,19 +135,19 @@ Page(
 
     renderNavRow(y, label, valueText, onTap) {
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(CARD_X),
+        x: px(SIDE_MARGIN),
         y: px(y),
-        w: px(CARD_W),
-        h: px(56),
+        w: px(CONTENT_W),
+        h: px(ROW_HEIGHT),
         radius: px(CARD_RADIUS),
         color: COLORS.CARD,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(CARD_X + 24),
+        x: px(SIDE_MARGIN + 20),
         y: px(y),
-        w: px(200),
-        h: px(56),
+        w: px(160),
+        h: px(ROW_HEIGHT),
         color: COLORS.TEXT_PRIMARY,
         text_size: px(FONT_SIZES.BODY_LG),
         align_v: hmUI.align.CENTER_V,
@@ -149,10 +155,10 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(CARD_X + 200),
+        x: px(SIDE_MARGIN + 180),
         y: px(y),
-        w: px(130),
-        h: px(56),
+        w: px(CONTENT_W - 220),
+        h: px(ROW_HEIGHT),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.RIGHT,
@@ -161,55 +167,55 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(CARD_X + CARD_W - 18),
-        y: px(y + (56 - 10) / 2),
-        w: px(10),
-        h: px(10),
+        x: px(SIDE_MARGIN + CONTENT_W - 20),
+        y: px(y + (ROW_HEIGHT - 18) / 2),
+        w: px(12),
+        h: px(12),
         src: "ic_chevron.png",
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(CARD_X),
+        x: px(SIDE_MARGIN),
         y: px(y),
-        w: px(CARD_W),
-        h: px(56),
+        w: px(CONTENT_W),
+        h: px(ROW_HEIGHT),
         normal_src: "ic_transparent.png",
         press_src: "ic_transparent.png",
         color: 0x000000,
         click_func: onTap,
       }));
 
-      return y + 56 + CARD_GAP;
+      return y + ROW_HEIGHT + CARD_GAP;
     },
 
     renderMadhabCard(y) {
       const s = this.state.settings;
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(CARD_X),
+        x: px(SIDE_MARGIN),
         y: px(y),
-        w: px(CARD_W),
-        h: px(84),
+        w: px(CONTENT_W),
+        h: px(MADHAB_HEIGHT),
         radius: px(CARD_RADIUS),
         color: COLORS.CARD,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(CARD_X + 24),
-        y: px(y + 8),
+        x: px(SIDE_MARGIN + 20),
+        y: px(y + 6),
         w: px(200),
-        h: px(20),
+        h: px(24),
         color: COLORS.TEXT_PRIMARY,
-        text_size: px(FONT_SIZES.BODY_LG),
+        text_size: px(FONT_SIZES.LABEL_SM),
         align_v: hmUI.align.CENTER_V,
         text: "Asr Madhab",
       }));
 
       const segY = y + 36;
-      const segH = 36;
-      const segGap = 4;
-      const segW = (CARD_W - 48 - segGap) / 2;
-      const segX1 = CARD_X + 24;
+      const segH = 48;
+      const segGap = 6;
+      const segW = (CONTENT_W - 40 - segGap) / 2;
+      const segX1 = SIDE_MARGIN + 20;
       const segX2 = segX1 + segW + segGap;
 
       const isStd = s.madhab === "standard";
@@ -285,7 +291,7 @@ Page(
         },
       }));
 
-      return y + 84 + CARD_GAP;
+      return y + MADHAB_HEIGHT + CARD_GAP;
     },
 
     trackWidget(id) {
