@@ -9,11 +9,11 @@ in order. Complex steps link to a `feature-*.md` with the full spec — open tha
 ---
 
 ## Step 1 — Tooling & restructure
-- [ ] Add Vitest as a devDependency; `npm test` runs `shared/` tests.
-- [ ] Create the `shared/` folder.
-- [ ] Remove the 5-test-alarm code (`scheduleReminders` + the button) from `page/bip6/home/index.page.js`;
+- [x] Add Vitest as a devDependency; `npm test` runs `shared/` tests.
+- [x] Create the `shared/` folder.
+- [x] Remove the 5-test-alarm code (`scheduleReminders` + the button) from `page/bip6/home/index.page.js`;
       leave a minimal placeholder home page (the real home is Epic 02).
-- [ ] Confirm `app.json` page entries are valid (no broken paths); `settings`/`qibla` pages are added in Epic 02.
+- [x] Confirm `app.json` page entries are valid (no broken paths); `settings`/`qibla` pages are added in Epic 02.
 
 ## Step 2 — `shared/storage.js`
 - [ ] Export `getLocation/setLocation`, `getSettings/setSettings`, `getAlarmIds/setAlarmIds`,
