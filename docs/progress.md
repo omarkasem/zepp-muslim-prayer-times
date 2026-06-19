@@ -38,8 +38,9 @@ app, steps were tailored:
 | 07 | `07-ai-coding/ai-context.md` | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
 | 08a | `08-tasks/roadmap.md` (3 epics) | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
 | 08b/c | `08-tasks/epic-01-engine-data/` (spec + overview + progress + 2 feature files) | ☑ done (Epic 01) | 2026-06-19 | `roadmap.md` |
-| — | **Epic 01 CODE** | ☐ not started | — | Epic 01 spec set |
-| 08b/c | Epic 02 (Watch App) specs | ☐ pending | — | needs `*-design.md` from Step 05 |
+| — | **Epic 01 CODE** | ✅ done & reviewed (29 tests green; fixes 1–4 + 5–8 applied) | 2026-06-19 | Epic 01 spec set |
+| 08b/c | `08-tasks/epic-02-watch-app/` specs | ☑ done | 2026-06-19 | roadmap + `*-design.md` |
+| — | **Epic 02 CODE** | ☐ not started | — | Epic 02 spec set |
 | 08b/c | Epic 03 (Multi-target & Store) specs | ☐ pending | — | after Epic 02 |
 
 ## Current code state (proven spike)
