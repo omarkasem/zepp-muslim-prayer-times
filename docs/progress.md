@@ -34,8 +34,11 @@ app, steps were tailored:
 | 05 | `05-ui-sketches/{home,settings,qibla}-prompt.md` | ◐ prompts ready; awaiting `*-design.md` | 2026-06-19 | `04-prd` |
 | 06 | `06-architecture/architecture.md` (Zepp) | ☑ done | 2026-06-19 | `04-prd` |
 | 07 | `07-ai-coding/ai-context.md` | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
-| 08a | `08-tasks/roadmap.md` | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
-| 08b/c | per-epic specs + feature files | ☐ pending | — | `roadmap.md` (one epic at a time) |
+| 08a | `08-tasks/roadmap.md` (3 epics) | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
+| 08b/c | `08-tasks/epic-01-engine-data/` (spec + overview + progress + 2 feature files) | ☑ done (Epic 01) | 2026-06-19 | `roadmap.md` |
+| — | **Epic 01 CODE** | ☐ not started | — | Epic 01 spec set |
+| 08b/c | Epic 02 (Watch App) specs | ☐ pending | — | needs `*-design.md` from Step 05 |
+| 08b/c | Epic 03 (Multi-target & Store) specs | ☐ pending | — | after Epic 02 |
 
 ## Current code state (proven spike)
 - Location working: IP lookup in `app-side/index.js` (ipwho.is → ipapi.co fallback), returns lat/lon/city/timezone.
