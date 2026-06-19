@@ -22,6 +22,7 @@ describe('planAlarms', () => {
         const res = planAlarms({
             now: new Date(2024, 0, 1, 10).getTime(),
             location: null,
+            existingAlarmIds: [100, 101],
             computeTimes: mockComputeTimes
         });
         expect(res.create).toEqual([]);

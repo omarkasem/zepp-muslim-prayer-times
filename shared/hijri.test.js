@@ -20,4 +20,21 @@ describe('toHijri', () => {
         expect(result.year).toBe(1445);
         expect(result.monthName).toBe("Ramadan");
     });
+
+    it('converts Eid al-Fitr correctly (April 10, 2024)', () => {
+        let d = new Date(2024, 3, 10); // April 10, 2024
+        const result = toHijri(d);
+        expect(result.day).toBe(1);
+        expect(result.month).toBe(10);
+        expect(result.monthName).toBe('Shawwal');
+        expect(result.year).toBe(1445);
+    });
+
+    it('converts near Hijri year boundary correctly (July 7, 2024)', () => {
+        let d = new Date(2024, 6, 7); // July 7, 2024
+        const result = toHijri(d);
+        expect(result.day).toBe(30);
+        expect(result.monthName).toBe('Dhu al-Hijjah');
+        expect(result.year).toBe(1445);
+    });
 });

@@ -9,14 +9,15 @@ export function planAlarms({
 }) {
   // We use full-replace semantics for V1 as specified in the feature spec.
   // All existing alarms are returned to be cancelled.
-  const cancelIds = [...existingAlarmIds];
-  const create = [];
-  
   if (!location || typeof location.lat !== 'number' || typeof location.lon !== 'number') {
-    return { cancelIds, create, scheduledThrough };
+    return { cancelIds: [], create: [], scheduledThrough };
   }
 
-  const offsetMs = (settings?.reminderOffsetMin || 0) * 60 * 1000;
+  const cancelIds = [...existingAlarmIds];
+  const create = [];
+
+  const s = settings || {};
+  const offsetMs = (s.reminderOffsetMin ? s.reminderOffsetMin : 0) * 60 * 1000;
   
   let newScheduledThrough = scheduledThrough || 0;
   
@@ -44,9 +45,9 @@ export function planAlarms({
       lon: location.lon,
       timezone: location.timezone,
       date: targetDate,
-      method: settings?.method,
-      madhab: settings?.madhab,
-      highLatRule: settings?.highLatRule
+      method: s.method,
+      madhab: s.madhab,
+      highLatRule: s.highLatRule
     });
 
     const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
