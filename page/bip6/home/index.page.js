@@ -69,41 +69,38 @@ Page(
     },
 
     onInit() {
-      this.build();
+      this._firstBuild = true;
       const cached = getLocation();
       if (cached) {
         this.state.location = cached;
-        this.computeAndRender();
+        if (this.prepareReadyStateFromLocation()) {
+          this.state.phase = "ready";
+        } else {
+          this.state.phase = "unavailable";
+        }
       } else {
+        this.state.phase = "loading";
         this.fetchLocation();
       }
     },
 
     onResume() {
       this.stopCountdownTimer();
-      if (this.state.phase === "ready" && this.state.location) {
-        const fresh = getSettings();
-        this.state.timeFormat = fresh.timeFormat;
-        const loc = this.state.location;
-        let times;
-        try {
-          times = computePrayerTimes({
-            lat: loc.lat,
-            lon: loc.lon,
-            timezone: loc.timezone,
-            date: new Date(),
-            method: fresh.method,
-            madhab: fresh.madhab,
-            highLatRule: fresh.highLatRule,
-          });
-        } catch (e) {
-          return;
+      if (this._firstBuild) {
+        this._firstBuild = false;
+        if (this.state.phase === "ready") {
+          this.recomputeNext();
+          this.startCountdownTimer();
         }
-        this.state.times = times;
-        this.destroyWidgets();
-        this.build();
-        this.recomputeNext();
-        this.startCountdownTimer();
+        return;
+      }
+      if (this.state.phase === "ready" && this.state.location) {
+        if (this.prepareReadyStateFromLocation()) {
+          this.destroyWidgets();
+          this.build();
+          this.recomputeNext();
+          this.startCountdownTimer();
+        }
       }
     },
 
@@ -126,7 +123,16 @@ Page(
             try {
               setLocation(loc);
               self.state.location = loc;
-              self.computeAndRender();
+              if (self.prepareReadyStateFromLocation()) {
+                self.state.phase = "ready";
+                self.destroyWidgets();
+                self.build();
+                self.recomputeNext();
+                self.startCountdownTimer();
+                try { applyReminders(); } catch (e) {}
+              } else {
+                self.renderUnavailable();
+              }
             } catch (e) {
               self.renderUnavailable();
             }
@@ -139,12 +145,9 @@ Page(
         });
     },
 
-    computeAndRender() {
+    prepareReadyStateFromLocation() {
       const loc = this.state.location;
-      if (!loc) {
-        this.renderUnavailable();
-        return;
-      }
+      if (!loc) return false;
       const settings = getSettings();
       this.state.timeFormat = settings.timeFormat;
       const now = new Date();
@@ -160,8 +163,7 @@ Page(
           highLatRule: settings.highLatRule,
         });
       } catch (e) {
-        this.renderUnavailable();
-        return;
+        return false;
       }
       let tomorrowFajr = null;
       try {
@@ -180,14 +182,10 @@ Page(
       }
       this.state.times = times;
       this.state.tomorrowFajr = tomorrowFajr;
-      this.state.phase = "ready";
-      this.destroyWidgets();
-      this.build();
-      this.recomputeNext();
-      this.startCountdownTimer();
-      try {
-        applyReminders();
-      } catch (e) {}
+      this.state.nextIndex = -1;
+      this.state.isTomorrow = false;
+      this.state.countdownText = "";
+      return true;
     },
 
     renderUnavailable() {
@@ -223,15 +221,15 @@ Page(
     startCountdownTimer() {
       this.stopCountdownTimer();
       const self = this;
+      // NOTE: global setInterval/clearInterval are in @zeppos/device-types v3
+      // runtime. Verify on-device per review-fixes-steps-1-3.md Fix 4 / Steps
+      // 4-5 Fix 4. If the countdown does NOT tick, swap to @zos/timer
+      // createSysTimer (v4 only — would require bumping apiVersion.target).
       this._timer = setInterval(function () {
         if (self.state.phase !== "ready") return;
         self.recomputeNext();
       }, 60000);
     },
-    // NOTE: global setInterval/clearInterval are in @zeppos/device-types v3
-    // runtime. Verify on-device per review-fixes-steps-1-3.md Fix 4. If the
-    // countdown does NOT tick, swap to @zos/timer createSysTimer (v4 only —
-    // would require bumping apiVersion.target).
 
     stopCountdownTimer() {
       if (this._timer) {
