@@ -29,10 +29,10 @@ in order. Complex steps link to a `feature-*.md` with the full spec — open tha
 - [x] Tests: every preset has the required params; `getMethod("garbage")` returns the default.
 
 ## Step 4 — `shared/prayer-times.js`  →  full spec: `feature-01-prayer-times.md`
-- [ ] Implement `computePrayerTimes({lat, lon, timezone, date, method, madhab, highLatRule})` → 5 epoch-ms instants.
-- [ ] Port an established algorithm (adhan-style); map method→angles via `methods.js`; madhab→Asr factor.
-- [ ] Handle the location timezone and the high-latitude rule. Validate inputs.
-- [ ] Tests per the feature file (incl. a non-local timezone and a high-latitude case).
+- [x] Implement `computePrayerTimes({lat, lon, timezone, date, method, madhab, highLatRule})` → 5 epoch-ms instants.
+- [x] Port an established algorithm (adhan-style); map method→angles via `methods.js`; madhab→Asr factor.
+- [x] Handle the location timezone and the high-latitude rule. Validate inputs.
+- [x] Tests per the feature file (incl. a non-local timezone and a high-latitude case).
 
 ## Step 5 — `shared/hijri.js`
 - [ ] `toHijri(date) → { day, month, monthName, year }` (arithmetic/tabular algorithm).
