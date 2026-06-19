@@ -10,7 +10,6 @@ import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { applyReminders } from "../../../lib/reminders";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
-const DESIGN_WIDTH = 390;
 
 const PRAYERS = [
   { key: "fajr", label: "Fajr" },
@@ -27,22 +26,36 @@ function prayerLabel(prayer, date) {
   return prayer.label;
 }
 
-// Bip 6 is 390x450 rectangular. Reserve the top for the system status bar
-// (best-effort hide via hmUI.setStatusBarVisible(false) in onInit; if it stays
-// visible, the reserve prevents content from sitting under it).
-const STATUS_BAR_RESERVE = 40;
+// Bip 6 is 390x450 rectangular and designWidth:390, so px() is 1:1. We still
+// wrap coords in px() for portability, and lay out against DEVICE_WIDTH/HEIGHT.
 const SIDE_MARGIN = 16;
 const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
-const NAV_HEIGHT = 60;
-const NAV_Y = DEVICE_HEIGHT - NAV_HEIGHT - 10;
-const LIST_TOP = 110 + STATUS_BAR_RESERVE;
-const LIST_BOTTOM = NAV_Y - 10;
+
+// Header (status bar is hidden in onInit).
+const CITY_Y = 28;
+const CITY_H = 28;
+const HIJRI_Y = CITY_Y + CITY_H + 6;
+const HIJRI_H = 22;
+
+// Bottom nav.
+const NAV_H = 56;
+const NAV_Y = DEVICE_HEIGHT - NAV_H - 14;
+
+// Prayer list region: leave a comfortable gap below the header and above the
+// nav so the active pill never collides with either.
+const LIST_TOP = 124;
+const LIST_BOTTOM = NAV_Y - 30;
 const LIST_HEIGHT = LIST_BOTTOM - LIST_TOP;
 const ROW_HEIGHT_INACTIVE = 40;
-const PILL_HEIGHT = 64;
-const PILL_X = SIDE_MARGIN;
-const PILL_W = CONTENT_W;
-const PILL_RADIUS = 24;
+const PILL_HEIGHT = 56;
+const PILL_RADIUS = 28;
+const ROW_INDENT = 22;
+
+// Rough text-width estimate (no text metrics API on Zepp). ~0.56 * font size
+// per character is a safe approximation for the system font.
+function estTextW(str, size) {
+  return Math.ceil((str ? str.length : 0) * size * 0.56);
+}
 
 function formatTime(epochMs, timeFormat) {
   const d = new Date(epochMs);
@@ -58,13 +71,15 @@ function formatTime(epochMs, timeFormat) {
   return h12 + ":" + mm + " " + ampm;
 }
 
-function formatCountdown(ms) {
+// Subtext on the highlighted (current) row: names the NEXT prayer + countdown,
+// e.g. "Maghrib in 1h 23m".
+function formatCountdown(label, ms) {
   if (ms < 0) ms = 0;
   const totalMin = Math.floor(ms / 60000);
   const h = Math.floor(totalMin / 60);
   const m = totalMin - h * 60;
-  if (h > 0) return "Next in " + h + "h " + m + "m";
-  return "Next in " + m + "m";
+  if (h > 0) return label + " in " + h + "h " + m + "m";
+  return label + " in " + m + "m";
 }
 
 function tomorrowDate(now) {
@@ -79,8 +94,7 @@ Page(
       location: null,
       times: null,
       tomorrowFajr: null,
-      nextIndex: -1,
-      isTomorrow: false,
+      currentIndex: -1,
       countdownText: "",
       timeFormat: "12h",
     },
@@ -92,6 +106,7 @@ Page(
       if (cached) {
         this.state.location = cached;
         if (this.prepareReadyStateFromLocation()) {
+          this.computeNext();
           this.state.phase = "ready";
         } else {
           this.state.phase = "unavailable";
@@ -107,16 +122,15 @@ Page(
       if (this._firstBuild) {
         this._firstBuild = false;
         if (this.state.phase === "ready") {
-          this.recomputeNext();
           this.startCountdownTimer();
         }
         return;
       }
       if (this.state.phase === "ready" && this.state.location) {
         if (this.prepareReadyStateFromLocation()) {
+          this.computeNext();
           this.destroyWidgets();
           this.build();
-          this.recomputeNext();
           this.startCountdownTimer();
         }
       }
@@ -142,10 +156,10 @@ Page(
               setLocation(loc);
               self.state.location = loc;
               if (self.prepareReadyStateFromLocation()) {
+                self.computeNext();
                 self.state.phase = "ready";
                 self.destroyWidgets();
                 self.build();
-                self.recomputeNext();
                 self.startCountdownTimer();
                 try { applyReminders(); } catch (e) {}
               } else {
@@ -200,8 +214,7 @@ Page(
       }
       this.state.times = times;
       this.state.tomorrowFajr = tomorrowFajr;
-      this.state.nextIndex = -1;
-      this.state.isTomorrow = false;
+      this.state.currentIndex = -1;
       this.state.countdownText = "";
       return true;
     },
@@ -212,40 +225,70 @@ Page(
       this.build();
     },
 
-    recomputeNext() {
+    // Pure: figure out the CURRENT prayer (the one whose time has begun and is
+    // now active) + a countdown to the NEXT prayer. Does NOT touch widgets, so
+    // it can run before the first build() (the pill is drawn correctly the first
+    // time, instead of being retro-fitted via updateWidget). Returns true if the
+    // highlighted (current) prayer changed since the last call.
+    computeNext() {
       const t = this.state.times;
-      if (!t) return;
+      if (!t) return false;
       const now = Date.now();
       const instants = PRAYERS.map((p) => t[p.key]);
-      let nextIdx = -1;
-      for (let i = 0; i < instants.length; i++) {
-        if (instants[i] > now) {
-          nextIdx = i;
-          break;
+      const last = PRAYERS.length - 1;
+      const prevIndex = this.state.currentIndex;
+
+      let currentIdx;
+      let nextInstant;
+      let nextPrayerIdx;
+      let nextLabelDate;
+
+      if (now < instants[0]) {
+        // Before today's Fajr → still inside last night's Isha window.
+        currentIdx = last;            // Isha
+        nextPrayerIdx = 0;            // Fajr (today)
+        nextInstant = instants[0];
+        nextLabelDate = new Date();
+      } else {
+        // The current prayer is the last one whose time has already passed.
+        currentIdx = 0;
+        for (let i = 0; i < instants.length; i++) {
+          if (instants[i] <= now) currentIdx = i;
+        }
+        if (currentIdx >= last) {
+          // After Isha → next is tomorrow's Fajr.
+          nextPrayerIdx = 0;
+          nextInstant = this.state.tomorrowFajr || instants[0];
+          nextLabelDate = tomorrowDate(now);
+        } else {
+          nextPrayerIdx = currentIdx + 1;
+          nextInstant = instants[nextPrayerIdx];
+          nextLabelDate = new Date();
         }
       }
-      if (nextIdx === -1) {
-        nextIdx = 0;
-        this.state.isTomorrow = true;
-        this.state.countdownText = "Tomorrow";
-      } else {
-        this.state.isTomorrow = false;
-        this.state.countdownText = formatCountdown(instants[nextIdx] - now);
-      }
-      this.state.nextIndex = nextIdx;
-      this.updateNextRow();
+
+      const nextLabel = prayerLabel(PRAYERS[nextPrayerIdx], nextLabelDate);
+      this.state.currentIndex = currentIdx;
+      this.state.countdownText = formatCountdown(nextLabel, nextInstant - now);
+      return prevIndex !== currentIdx;
     },
 
     startCountdownTimer() {
       this.stopCountdownTimer();
       const self = this;
       // NOTE: global setInterval/clearInterval are in @zeppos/device-types v3
-      // runtime. Verify on-device per review-fixes-steps-1-3.md Fix 4 / Steps
-      // 4-5 Fix 4. If the countdown does NOT tick, swap to @zos/timer
-      // createSysTimer (v4 only — would require bumping apiVersion.target).
+      // runtime. Verify on-device per review-fixes-steps-1-3.md Fix 4. If the
+      // countdown does NOT tick, swap to @zos/timer createSysTimer.
       this._timer = setInterval(function () {
         if (self.state.phase !== "ready") return;
-        self.recomputeNext();
+        const changed = self.computeNext();
+        if (changed) {
+          // The current prayer rolled over — redraw so the pill moves cleanly.
+          self.destroyWidgets();
+          self.build();
+        } else {
+          self.updateCountdown();
+        }
       }, 60000);
     },
 
@@ -263,16 +306,15 @@ Page(
     },
 
     destroyWidgets() {
+      this._countdownId = -1;
       if (!this._widgetIds) {
         this._widgetIds = [];
-        this._rowWidgets = [];
         return;
       }
       for (let i = 0; i < this._widgetIds.length; i++) {
         try { hmUI.deleteWidget(this._widgetIds[i]); } catch (e) {}
       }
       this._widgetIds = [];
-      this._rowWidgets = [];
     },
 
     build() {
@@ -286,73 +328,68 @@ Page(
 
       const phase = this.state.phase;
 
-      if (phase === "loading") {
+      if (phase === "loading" || phase === "unavailable") {
         this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
           x: px(SIDE_MARGIN),
-          y: px(STATUS_BAR_RESERVE + 40),
-          w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
-          h: px(40),
-          color: COLORS.TEXT_MUTED,
-          text_size: px(FONT_SIZES.BODY_LG),
-          align_h: hmUI.align.CENTER_H,
-          align_v: hmUI.align.CENTER_V,
-          text: "Getting location…",
-        }));
-        this.renderBottomNav();
-        return;
-      }
-
-      if (phase === "unavailable") {
-        this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(SIDE_MARGIN),
-          y: px(STATUS_BAR_RESERVE + 40),
-          w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
-          h: px(40),
+          y: px(180),
+          w: px(CONTENT_W),
+          h: px(60),
           color: COLORS.TEXT_MUTED,
           text_size: px(FONT_SIZES.BODY_LG),
           align_h: hmUI.align.CENTER_H,
           align_v: hmUI.align.CENTER_V,
           text_style: hmUI.text_style.WRAP,
-          text: "Location unavailable",
+          text: phase === "loading" ? "Getting location…" : "Location unavailable",
         }));
         this.renderBottomNav();
         return;
       }
 
+      this.renderHeader();
+      this.renderList();
+      this.renderBottomNav();
+    },
+
+    renderHeader() {
       const loc = this.state.location;
       const city = (loc && loc.city) ? loc.city : "—";
       const today = new Date();
       const hijri = toHijri(today);
       const hijriText = (hijri.day + " " + hijri.monthName + " " + hijri.year).toUpperCase();
 
-      const cityY = STATUS_BAR_RESERVE + 18;
-      const cityIconSize = 22;
-      const cityTextW = 200;
-      const cityGroupW = cityIconSize + 8 + cityTextW;
-      const cityX = (DESIGN_WIDTH - cityGroupW) / 2;
+      // Center the pin icon + city name as a single group. Estimate the text
+      // width so the group is actually centered (a fixed-width box would let a
+      // short city drift left).
+      const iconSize = 22;
+      const gap = 8;
+      const textW = Math.min(estTextW(city, FONT_SIZES.LABEL_SM), CONTENT_W - iconSize - gap);
+      const groupW = iconSize + gap + textW;
+      const groupX = Math.round((DEVICE_WIDTH - groupW) / 2);
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(cityX),
-        y: px(cityY),
-        w: px(cityIconSize),
-        h: px(cityIconSize),
+        x: px(groupX),
+        y: px(CITY_Y + (CITY_H - iconSize) / 2),
+        w: px(iconSize),
+        h: px(iconSize),
         src: "ic_pin.png",
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(cityX + cityIconSize + 8),
-        y: px(cityY - 2),
-        w: px(cityTextW),
-        h: px(cityIconSize + 4),
+        x: px(groupX + iconSize + gap),
+        y: px(CITY_Y),
+        w: px(textW),
+        h: px(CITY_H),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.LABEL_SM),
+        align_h: hmUI.align.LEFT,
         align_v: hmUI.align.CENTER_V,
         text: city,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN),
-        y: px(cityY + 32),
-        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
-        h: px(24),
+        y: px(HIJRI_Y),
+        w: px(CONTENT_W),
+        h: px(HIJRI_H),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.SMALL),
         align_h: hmUI.align.CENTER_H,
@@ -360,237 +397,159 @@ Page(
         char_space: 1,
         text: hijriText,
       }));
+    },
 
+    renderList() {
       const times = this.state.times;
       const tf = this.state.timeFormat;
-      this._rowWidgets = [];
       const step = LIST_HEIGHT / (PRAYERS.length - 1);
+      this._countdownId = -1;
+
       for (let i = 0; i < PRAYERS.length; i++) {
         const y = Math.round(LIST_TOP + i * step);
         const prayer = PRAYERS[i];
-        const isActive = (i === this.state.nextIndex);
-        const instant = isActive && this.state.isTomorrow && this.state.tomorrowFajr
-          ? this.state.tomorrowFajr
-          : times[prayer.key];
-        const timeStr = formatTime(instant, tf);
+        const isActive = (i === this.state.currentIndex);
+        const timeStr = formatTime(times[prayer.key], tf);
+        const label = prayerLabel(prayer, new Date());
 
-        const rowH = ROW_HEIGHT_INACTIVE;
-
-        const pillId = this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-          x: px(PILL_X),
-          y: px(y - PILL_HEIGHT / 2),
-          w: px(PILL_W),
-          h: px(isActive ? PILL_HEIGHT : rowH),
-          radius: px(isActive ? PILL_RADIUS : 0),
-          color: isActive ? COLORS.NEXT_PRAYER_PILL : COLORS.BACKGROUND,
-        }));
-
-        const labelColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const timeColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const labelSize = isActive ? FONT_SIZES.LABEL_SM : FONT_SIZES.BODY_LG;
-        const timeSize = isActive ? FONT_SIZES.HEADLINE_MD : FONT_SIZES.BODY_LG;
-
-        const labelId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(SIDE_MARGIN + 20),
-          y: px(y - (isActive ? 14 : rowH / 2)),
-          w: px(120),
-          h: px(isActive ? 24 : rowH),
-          color: labelColor,
-          text_size: px(labelSize),
-          align_v: hmUI.align.CENTER_V,
-          text: prayerLabel(prayer, new Date()),
-        }));
-
-        const timeId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(DEVICE_WIDTH - SIDE_MARGIN - 160 - 20),
-          y: px(y - (isActive ? 18 : rowH / 2)),
-          w: px(160),
-          h: px(isActive ? 32 : rowH),
-          color: timeColor,
-          text_size: px(timeSize),
-          align_h: hmUI.align.RIGHT,
-          align_v: hmUI.align.CENTER_V,
-          text: timeStr,
-        }));
-
-        let countdownId = -1;
         if (isActive) {
-          countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + 20),
-            y: px(y + 14),
-            w: px(220),
-            h: px(20),
+          this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+            x: px(SIDE_MARGIN),
+            y: px(y - PILL_HEIGHT / 2),
+            w: px(CONTENT_W),
+            h: px(PILL_HEIGHT),
+            radius: px(PILL_RADIUS),
+            color: COLORS.NEXT_PRAYER_PILL,
+          }));
+          // Label (top) + countdown (below), left side.
+          this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+            x: px(SIDE_MARGIN + ROW_INDENT),
+            y: px(y - 18),
+            w: px(180),
+            h: px(22),
+            color: COLORS.NEXT_PRAYER_TEXT,
+            text_size: px(FONT_SIZES.LABEL_SM),
+            align_v: hmUI.align.CENTER_V,
+            text: label,
+          }));
+          this._countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+            x: px(SIDE_MARGIN + ROW_INDENT),
+            y: px(y + 6),
+            w: px(180),
+            h: px(18),
             color: COLORS.NEXT_PRAYER_TEXT,
             text_size: px(FONT_SIZES.SMALL),
             align_v: hmUI.align.CENTER_V,
             text: this.state.countdownText,
           }));
+          // Time (right, larger).
+          this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+            x: px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 160),
+            y: px(y - PILL_HEIGHT / 2),
+            w: px(160),
+            h: px(PILL_HEIGHT),
+            color: COLORS.NEXT_PRAYER_TEXT,
+            text_size: px(FONT_SIZES.HEADLINE_MD),
+            align_h: hmUI.align.RIGHT,
+            align_v: hmUI.align.CENTER_V,
+            text: timeStr,
+          }));
+        } else {
+          this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+            x: px(SIDE_MARGIN + ROW_INDENT),
+            y: px(y - ROW_HEIGHT_INACTIVE / 2),
+            w: px(160),
+            h: px(ROW_HEIGHT_INACTIVE),
+            color: COLORS.TEXT_INACTIVE,
+            text_size: px(FONT_SIZES.BODY_LG),
+            align_v: hmUI.align.CENTER_V,
+            text: label,
+          }));
+          this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+            x: px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 160),
+            y: px(y - ROW_HEIGHT_INACTIVE / 2),
+            w: px(160),
+            h: px(ROW_HEIGHT_INACTIVE),
+            color: COLORS.TEXT_INACTIVE,
+            text_size: px(FONT_SIZES.BODY_LG),
+            align_h: hmUI.align.RIGHT,
+            align_v: hmUI.align.CENTER_V,
+            text: timeStr,
+          }));
         }
-
-        this._rowWidgets.push({ pillId, labelId, timeId, countdownId, index: i, y });
       }
-
-      this.renderBottomNav();
     },
 
-    updateNextRow() {
-      if (!this._rowWidgets) return;
-      const nextIndex = this.state.nextIndex;
-      const tf = this.state.timeFormat;
-      for (let i = 0; i < this._rowWidgets.length; i++) {
-        const w = this._rowWidgets[i];
-        const isActive = (i === nextIndex);
-        const instant = isActive && this.state.isTomorrow && this.state.tomorrowFajr
-          ? this.state.tomorrowFajr
-          : this.state.times[PRAYERS[i].key];
-        const timeStr = formatTime(instant, tf);
-        hmUI.updateWidget(w.pillId, hmUI.widget.FILL_RECT, {
-          x: px(PILL_X),
-          y: px(w.y - PILL_HEIGHT / 2),
-          w: px(PILL_W),
-          h: px(isActive ? PILL_HEIGHT : ROW_HEIGHT_INACTIVE),
-          radius: px(isActive ? PILL_RADIUS : 0),
-          color: isActive ? COLORS.NEXT_PRAYER_PILL : COLORS.BACKGROUND,
+    updateCountdown() {
+      if (this._countdownId && this._countdownId !== -1) {
+        hmUI.updateWidget(this._countdownId, hmUI.widget.TEXT, {
+          text: this.state.countdownText,
         });
-        const labelColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const timeColor = isActive ? COLORS.NEXT_PRAYER_TEXT : COLORS.TEXT_INACTIVE;
-        const labelSize = isActive ? FONT_SIZES.LABEL_SM : FONT_SIZES.BODY_LG;
-        const timeSize = isActive ? FONT_SIZES.HEADLINE_MD : FONT_SIZES.BODY_LG;
-        hmUI.updateWidget(w.labelId, hmUI.widget.TEXT, {
-          x: px(SIDE_MARGIN + 20),
-          y: px(w.y - (isActive ? 14 : ROW_HEIGHT_INACTIVE / 2)),
-          w: px(120),
-          h: px(isActive ? 24 : ROW_HEIGHT_INACTIVE),
-          color: labelColor,
-          text_size: px(labelSize),
-          align_v: hmUI.align.CENTER_V,
-          text: prayerLabel(PRAYERS[i], new Date()),
-        });
-        hmUI.updateWidget(w.timeId, hmUI.widget.TEXT, {
-          x: px(DEVICE_WIDTH - SIDE_MARGIN - 160 - 20),
-          y: px(w.y - (isActive ? 18 : ROW_HEIGHT_INACTIVE / 2)),
-          w: px(160),
-          h: px(isActive ? 32 : ROW_HEIGHT_INACTIVE),
-          color: timeColor,
-          text_size: px(timeSize),
-          align_h: hmUI.align.RIGHT,
-          align_v: hmUI.align.CENTER_V,
-          text: timeStr,
-        });
-        if (w.countdownId !== -1) {
-          hmUI.updateWidget(w.countdownId, hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + 20),
-            y: px(w.y + 14),
-            w: px(220),
-            h: px(20),
-            color: COLORS.NEXT_PRAYER_TEXT,
-            text_size: px(FONT_SIZES.SMALL),
-            align_v: hmUI.align.CENTER_V,
-            text: this.state.countdownText,
-          });
-        }
-        if (isActive && w.countdownId === -1) {
-          w.countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + 20),
-            y: px(w.y + 14),
-            w: px(220),
-            h: px(20),
-            color: COLORS.NEXT_PRAYER_TEXT,
-            text_size: px(FONT_SIZES.SMALL),
-            align_v: hmUI.align.CENTER_V,
-            text: this.state.countdownText,
-          }));
-        } else if (!isActive && w.countdownId !== -1) {
-          hmUI.deleteWidget(w.countdownId);
-          w.countdownId = -1;
-        }
       }
     },
 
     renderBottomNav() {
-      const btnW = 170;
-      const btnH = NAV_HEIGHT;
-      const gap = 12;
-      const totalW = btnW * 2 + gap;
-      const startX = (DEVICE_WIDTH - totalW) / 2;
+      const gap = 14;
+      const btnW = Math.floor((CONTENT_W - gap) / 2);
+      const startX = SIDE_MARGIN;
+      const iconSize = 26;
 
+      this.renderNavButton(
+        startX, btnW, iconSize,
+        "ic_compass.png", COLORS.ACCENT_DEEP,
+        "Qibla", COLORS.ACCENT,
+        () => push({ url: "page/bip6/qibla/index.page", params: {} })
+      );
+
+      this.renderNavButton(
+        startX + btnW + gap, btnW, iconSize,
+        "ic_gear.png", COLORS.TEXT_MUTED,
+        "Settings", COLORS.TEXT_PRIMARY,
+        () => push({ url: "page/bip6/settings/index.page", params: {} })
+      );
+    },
+
+    renderNavButton(x, w, iconSize, iconSrc, iconColor, label, labelColor, onTap) {
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(startX),
+        x: px(x),
         y: px(NAV_Y),
-        w: px(btnW),
-        h: px(btnH),
-        radius: px(btnH / 2),
+        w: px(w),
+        h: px(NAV_H),
+        radius: px(NAV_H / 2),
         color: COLORS.CARD,
       }));
+      // Center the icon + label group within the button.
+      const labelW = estTextW(label, FONT_SIZES.LABEL_SM);
+      const innerGap = 8;
+      const groupW = iconSize + innerGap + labelW;
+      const groupX = x + Math.round((w - groupW) / 2);
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(startX + 16),
-        y: px(NAV_Y + (btnH - 28) / 2),
-        w: px(28),
-        h: px(28),
-        src: "ic_compass.png",
-        color: COLORS.ACCENT_DEEP,
+        x: px(groupX),
+        y: px(NAV_Y + (NAV_H - iconSize) / 2),
+        w: px(iconSize),
+        h: px(iconSize),
+        src: iconSrc,
+        color: iconColor,
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(startX + 52),
+        x: px(groupX + iconSize + innerGap),
         y: px(NAV_Y),
-        w: px(btnW - 60),
-        h: px(btnH),
-        color: COLORS.ACCENT_DEEP,
+        w: px(labelW + 8),
+        h: px(NAV_H),
+        color: labelColor,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_v: hmUI.align.CENTER_V,
-        text: "Qibla",
+        text: label,
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(startX),
+        x: px(x),
         y: px(NAV_Y),
-        w: px(btnW),
-        h: px(btnH),
+        w: px(w),
+        h: px(NAV_H),
         normal_src: "ic_transparent.png",
         press_src: "ic_transparent.png",
         color: 0x000000,
-        click_func: () => {
-          push({ url: "page/bip6/qibla/index.page", params: {} });
-        },
-      }));
-
-      const gearX = startX + btnW + gap;
-      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(gearX),
-        y: px(NAV_Y),
-        w: px(btnW),
-        h: px(btnH),
-        radius: px(btnH / 2),
-        color: COLORS.CARD,
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(gearX + 16),
-        y: px(NAV_Y + (btnH - 28) / 2),
-        w: px(28),
-        h: px(28),
-        src: "ic_gear.png",
-        color: COLORS.TEXT_MUTED,
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(gearX + 52),
-        y: px(NAV_Y),
-        w: px(btnW - 60),
-        h: px(btnH),
-        color: COLORS.TEXT_PRIMARY,
-        text_size: px(FONT_SIZES.LABEL_SM),
-        align_v: hmUI.align.CENTER_V,
-        text: "Settings",
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(gearX),
-        y: px(NAV_Y),
-        w: px(btnW),
-        h: px(btnH),
-        normal_src: "ic_transparent.png",
-        press_src: "ic_transparent.png",
-        color: 0x000000,
-        click_func: () => {
-          push({ url: "page/bip6/settings/index.page", params: {} });
-        },
+        click_func: onTap,
       }));
     },
   })

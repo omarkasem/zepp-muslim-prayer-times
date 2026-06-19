@@ -5,22 +5,33 @@ import { px } from "@zos/utils";
 import { push, back } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
 import { getSettings, setSettings } from "../../../shared/storage";
-import { METHODS } from "../../../shared/methods";
 import { applyReminders } from "../../../lib/reminders";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
-const DESIGN_WIDTH = 390;
 
 const STATUS_BAR_RESERVE = 40;
 const SIDE_MARGIN = 16;
 const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
 const HEADER_Y = STATUS_BAR_RESERVE + 8;
 const LIST_TOP = STATUS_BAR_RESERVE + 64;
-const ROW_HEIGHT = 64;
-const MADHAB_HEIGHT = 100;
-const CARD_RADIUS = 16;
+const CARD_PAD = 20;          // inner horizontal padding
+const NAV_CARD_HEIGHT = 80;   // stacked label + value
+const MADHAB_HEIGHT = 112;
+const CARD_RADIUS = 18;
 const CARD_GAP = 10;
+const CHEVRON_SIZE = 14;
+
+// Short, glanceable value labels. The canonical method names in methods.js are
+// far too long for a watch row ("Egyptian General Authority of Survey"), so we
+// show concise labels here.
+const METHOD_SHORT_LABELS = {
+  mwl: "Muslim World League",
+  isna: "ISNA",
+  egyptian: "Egyptian",
+  umm_al_qura: "Umm al-Qura",
+  karachi: "Karachi",
+};
 
 const HIGH_LAT_LABELS = {
   none: "None",
@@ -37,14 +48,8 @@ const REMINDER_OFFSET_LABELS = {
   20: "20 min",
 };
 
-const TIME_FORMAT_LABELS = {
-  "12h": "12-hour (AM/PM)",
-  "24h": "24-hour",
-};
-
 function methodLabel(id) {
-  const m = METHODS[id];
-  return (m && m.name) ? m.name : "—";
+  return METHOD_SHORT_LABELS[id] || "—";
 }
 
 function highLatLabel(id) {
@@ -54,10 +59,6 @@ function highLatLabel(id) {
 function reminderOffsetLabel(n) {
   const label = REMINDER_OFFSET_LABELS[n];
   return label != null ? label : "—";
-}
-
-function timeFormatLabel(v) {
-  return TIME_FORMAT_LABELS[v] || "—";
 }
 
 function setSettingAndReschedule(patch) {
@@ -106,7 +107,7 @@ Page(
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN),
         y: px(HEADER_Y + 4),
-        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        w: px(CONTENT_W),
         h: px(36),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.HEADLINE),
@@ -120,57 +121,84 @@ Page(
       let y = LIST_TOP;
       y = this.renderNavRow(y, "Calculation Method", methodLabel(s.method), () => this.openPicker("method"));
 
-      y = this.renderMadhabCard(y);
+      y = this.renderToggleCard(y, "Asr Madhab", [
+        { label: "Standard", selected: s.madhab === "standard", value: "standard" },
+        { label: "Hanafi", selected: s.madhab === "hanafi", value: "hanafi" },
+      ], (value) => {
+        if (s.madhab === value) return;
+        setSettingAndReschedule({ madhab: value });
+        this.state.settings = getSettings();
+        this.rebuild();
+      });
 
       y = this.renderNavRow(y, "High Latitude Rule", highLatLabel(s.highLatRule), () => this.openPicker("highLatRule"));
-
       y = this.renderNavRow(y, "Reminder Offset", reminderOffsetLabel(s.reminderOffsetMin), () => this.openPicker("reminderOffset"));
 
-      y = this.renderNavRow(y, "Time Format", timeFormatLabel(s.timeFormat), () => this.openPicker("timeFormat"));
+      y = this.renderToggleCard(y, "Time Format", [
+        { label: "12h", selected: s.timeFormat === "12h", value: "12h" },
+        { label: "24h", selected: s.timeFormat === "24h", value: "24h" },
+      ], (value) => {
+        if (s.timeFormat === value) return;
+        setSettingAndReschedule({ timeFormat: value });
+        this.state.settings = getSettings();
+        this.rebuild();
+      });
+
+      // Bottom spacer so the last card clears the screen edge when scrolled.
+      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+        x: 0,
+        y: px(y),
+        w: px(4),
+        h: px(24),
+        color: COLORS.BACKGROUND,
+      }));
     },
 
     openPicker(key) {
       push({ url: "page/bip6/settings-picker/index.page", params: { key: key } });
     },
 
+    // Stacked card: muted label on top, accent value below, chevron on the
+    // right. Each text line spans the full inner width so nothing marquees.
     renderNavRow(y, label, valueText, onTap) {
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
         x: px(SIDE_MARGIN),
         y: px(y),
         w: px(CONTENT_W),
-        h: px(ROW_HEIGHT),
+        h: px(NAV_CARD_HEIGHT),
         radius: px(CARD_RADIUS),
         color: COLORS.CARD,
       }));
 
+      const innerW = CONTENT_W - 2 * CARD_PAD - CHEVRON_SIZE - 8;
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN + 20),
-        y: px(y),
-        w: px(160),
-        h: px(ROW_HEIGHT),
-        color: COLORS.TEXT_PRIMARY,
-        text_size: px(FONT_SIZES.BODY_LG),
+        x: px(SIDE_MARGIN + CARD_PAD),
+        y: px(y + 14),
+        w: px(innerW),
+        h: px(26),
+        color: COLORS.TEXT_MUTED,
+        text_size: px(FONT_SIZES.LABEL_SM),
         align_v: hmUI.align.CENTER_V,
         text: label,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN + 180),
-        y: px(y),
-        w: px(CONTENT_W - 220),
-        h: px(ROW_HEIGHT),
+        x: px(SIDE_MARGIN + CARD_PAD),
+        y: px(y + 42),
+        w: px(innerW),
+        h: px(28),
         color: COLORS.ACCENT,
-        text_size: px(FONT_SIZES.LABEL_SM),
-        align_h: hmUI.align.RIGHT,
+        text_size: px(FONT_SIZES.BODY_LG),
         align_v: hmUI.align.CENTER_V,
         text: valueText,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(SIDE_MARGIN + CONTENT_W - 20),
-        y: px(y + (ROW_HEIGHT - 18) / 2),
-        w: px(12),
-        h: px(12),
+        x: px(SIDE_MARGIN + CONTENT_W - CARD_PAD - CHEVRON_SIZE),
+        y: px(y + (NAV_CARD_HEIGHT - CHEVRON_SIZE) / 2),
+        w: px(CHEVRON_SIZE),
+        h: px(CHEVRON_SIZE),
         src: "ic_chevron.png",
       }));
 
@@ -178,19 +206,20 @@ Page(
         x: px(SIDE_MARGIN),
         y: px(y),
         w: px(CONTENT_W),
-        h: px(ROW_HEIGHT),
+        h: px(NAV_CARD_HEIGHT),
         normal_src: "ic_transparent.png",
         press_src: "ic_transparent.png",
         color: 0x000000,
         click_func: onTap,
       }));
 
-      return y + ROW_HEIGHT + CARD_GAP;
+      return y + NAV_CARD_HEIGHT + CARD_GAP;
     },
 
-    renderMadhabCard(y) {
-      const s = this.state.settings;
-
+    // Card with a title + an inline two-segment toggle. `options` is a pair of
+    // { label, selected, value }; onSelect(value) is called when a segment is
+    // tapped. Used for both Asr Madhab and Time Format.
+    renderToggleCard(y, title, options, onSelect) {
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
         x: px(SIDE_MARGIN),
         y: px(y),
@@ -201,97 +230,64 @@ Page(
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN + 20),
-        y: px(y + 6),
-        w: px(200),
-        h: px(24),
-        color: COLORS.TEXT_PRIMARY,
+        x: px(SIDE_MARGIN + CARD_PAD),
+        y: px(y + 14),
+        w: px(CONTENT_W - 2 * CARD_PAD),
+        h: px(26),
+        color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_v: hmUI.align.CENTER_V,
-        text: "Asr Madhab",
+        text: title,
       }));
 
-      const segY = y + 36;
+      const segY = y + 48;
       const segH = 48;
       const segGap = 6;
-      const segW = (CONTENT_W - 40 - segGap) / 2;
-      const segX1 = SIDE_MARGIN + 20;
+      const segW = (CONTENT_W - 2 * CARD_PAD - segGap) / 2;
+      const segX1 = SIDE_MARGIN + CARD_PAD;
       const segX2 = segX1 + segW + segGap;
+      const segXs = [segX1, segX2];
 
-      const isStd = s.madhab === "standard";
-      const isHan = s.madhab === "hanafi";
-
-      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(segX1),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        radius: px(segH / 2),
-        color: isStd ? COLORS.ACCENT : COLORS.BACKGROUND,
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(segX1),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        color: isStd ? COLORS.SEGMENT_SELECTED_TEXT : COLORS.PICKER_OPTION_INACTIVE,
-        text_size: px(FONT_SIZES.LABEL_SM),
-        align_h: hmUI.align.CENTER_H,
-        align_v: hmUI.align.CENTER_V,
-        text: "Standard",
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(segX1),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        normal_src: "ic_transparent.png",
-        press_src: "ic_transparent.png",
-        color: 0x000000,
-        click_func: () => {
-          if (isStd) return;
-          setSettingAndReschedule({ madhab: "standard" });
-          this.state.settings = getSettings();
-          this.rebuild();
-        },
-      }));
-
-      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(segX2),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        radius: px(segH / 2),
-        color: isHan ? COLORS.ACCENT : COLORS.BACKGROUND,
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(segX2),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        color: isHan ? COLORS.SEGMENT_SELECTED_TEXT : COLORS.PICKER_OPTION_INACTIVE,
-        text_size: px(FONT_SIZES.LABEL_SM),
-        align_h: hmUI.align.CENTER_H,
-        align_v: hmUI.align.CENTER_V,
-        text: "Hanafi",
-      }));
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(segX2),
-        y: px(segY),
-        w: px(segW),
-        h: px(segH),
-        normal_src: "ic_transparent.png",
-        press_src: "ic_transparent.png",
-        color: 0x000000,
-        click_func: () => {
-          if (isHan) return;
-          setSettingAndReschedule({ madhab: "hanafi" });
-          this.state.settings = getSettings();
-          this.rebuild();
-        },
-      }));
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i];
+        this.renderSegment(segXs[i], segY, segW, segH, opt.label, opt.selected, () => {
+          onSelect(opt.value);
+        });
+      }
 
       return y + MADHAB_HEIGHT + CARD_GAP;
+    },
+
+    renderSegment(x, segY, segW, segH, text, selected, onTap) {
+      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+        x: px(x),
+        y: px(segY),
+        w: px(segW),
+        h: px(segH),
+        radius: px(segH / 2),
+        color: selected ? COLORS.ACCENT : COLORS.BACKGROUND,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+        x: px(x),
+        y: px(segY),
+        w: px(segW),
+        h: px(segH),
+        color: selected ? COLORS.SEGMENT_SELECTED_TEXT : COLORS.PICKER_OPTION_INACTIVE,
+        text_size: px(FONT_SIZES.LABEL_SM),
+        align_h: hmUI.align.CENTER_H,
+        align_v: hmUI.align.CENTER_V,
+        text: text,
+      }));
+      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
+        x: px(x),
+        y: px(segY),
+        w: px(segW),
+        h: px(segH),
+        normal_src: "ic_transparent.png",
+        press_src: "ic_transparent.png",
+        color: 0x000000,
+        click_func: onTap,
+      }));
     },
 
     trackWidget(id) {

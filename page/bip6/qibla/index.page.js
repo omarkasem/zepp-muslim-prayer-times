@@ -15,9 +15,11 @@ const STATUS_BAR_RESERVE = 40;
 const SIDE_MARGIN = 16;
 const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
 const CENTER_X = DEVICE_WIDTH / 2;
-const COMPASS_CENTER_Y = 230;
+const COMPASS_CENTER_Y = 208;
 const DIAL_SIZE = 220;
-const ARROW_SIZE = 150;
+const RIM_R = 104;                 // radius the Kaaba marker orbits on
+const CENTER_ARROW_SIZE = 92;      // big "your facing" arrow in the middle
+const KAABA_SIZE = 44;             // moving Qibla marker
 
 const ALIGN_THRESHOLD_DEG = 6;
 const CALIBRATE_FALLBACK_MS = 5000;
@@ -200,20 +202,17 @@ Page(
       }));
     },
 
-    renderActive() {
-      const city = (this.state.location && this.state.location.city) ? this.state.location.city : "—";
-      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN),
-        y: px(STATUS_BAR_RESERVE + 8),
-        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
-        h: px(36),
-        color: COLORS.TEXT_MUTED,
-        text_size: px(FONT_SIZES.LABEL_SM),
-        align_h: hmUI.align.CENTER_H,
-        align_v: hmUI.align.CENTER_V,
-        text: city,
-      }));
+    // Returns the screen-space top-left for a KAABA_SIZE marker centered on the
+    // dial rim at `rel` degrees (0 = top / 12 o'clock, increasing clockwise).
+    kaabaPos(rel) {
+      const r = (rel * Math.PI) / 180;
+      const cxp = CENTER_X + RIM_R * Math.sin(r);
+      const cyp = COMPASS_CENTER_Y - RIM_R * Math.cos(r);
+      return { x: cxp - KAABA_SIZE / 2, y: cyp - KAABA_SIZE / 2 };
+    },
 
+    renderActive() {
+      // Faint compass dial ring (decorative reference circle).
       this.trackWidget(hmUI.createWidget(hmUI.widget.ARC, {
         x: px(CENTER_X - DIAL_SIZE / 2),
         y: px(COMPASS_CENTER_Y - DIAL_SIZE / 2),
@@ -225,47 +224,39 @@ Page(
         color: COLORS.QIBLA_DIAL,
       }));
 
-      this._kaabaWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(CENTER_X - 30),
-        y: px(COMPASS_CENTER_Y - 30),
-        w: px(60),
-        h: px(60),
-        src: "ic_kaaba.png",
-        color: COLORS.ACCENT,
-        visible: false,
+      // Fixed index dot at the very top — the "target". Align the Kaaba here.
+      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
+        x: px(CENTER_X - 5),
+        y: px(COMPASS_CENTER_Y - RIM_R - 5),
+        w: px(10),
+        h: px(10),
+        radius: px(5),
+        color: COLORS.QIBLA_ARROW_SEARCHING,
       }));
 
-      const cardinals = [
-        { text: "N", x: CENTER_X - 12, y: COMPASS_CENTER_Y - DIAL_SIZE / 2 - 22 },
-        { text: "E", x: CENTER_X + DIAL_SIZE / 2 - 6, y: COMPASS_CENTER_Y - 14 },
-        { text: "S", x: CENTER_X - 10, y: COMPASS_CENTER_Y + DIAL_SIZE / 2 - 6 },
-        { text: "W", x: CENTER_X - DIAL_SIZE / 2 - 10, y: COMPASS_CENTER_Y - 14 },
-      ];
-      for (let i = 0; i < cardinals.length; i++) {
-        const c = cardinals[i];
-        this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-          x: px(c.x),
-          y: px(c.y),
-          w: px(24),
-          h: px(28),
-          color: COLORS.TEXT_MUTED,
-          text_size: px(FONT_SIZES.LABEL_SM),
-          align_h: hmUI.align.CENTER_H,
-          align_v: hmUI.align.CENTER_V,
-          text: c.text,
-        }));
-      }
-
+      // Big arrow in the centre = the watch's own facing (always points up).
+      // Static image (no rotation) so it renders reliably; it turns green when
+      // the Kaaba marker reaches the top (you are facing the Qibla).
       this._arrowWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(CENTER_X - ARROW_SIZE / 2),
-        y: px(COMPASS_CENTER_Y - ARROW_SIZE / 2),
-        w: px(ARROW_SIZE),
-        h: px(ARROW_SIZE),
+        x: px(CENTER_X - CENTER_ARROW_SIZE / 2),
+        y: px(COMPASS_CENTER_Y - CENTER_ARROW_SIZE / 2),
+        w: px(CENTER_ARROW_SIZE),
+        h: px(CENTER_ARROW_SIZE),
         src: "ic_qibla_arrow.png",
         color: COLORS.QIBLA_ARROW_SEARCHING,
-        center_x: px(CENTER_X),
-        center_y: px(COMPASS_CENTER_Y),
-        angle: 0,
+      }));
+
+      // Moving Kaaba marker — orbits the rim to show where the Qibla is. Its
+      // position is updated on every heading change via setProperty (the proven
+      // reposition technique; image rotation is unreliable on this firmware).
+      const startPos = this.kaabaPos(0);
+      this._kaabaWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
+        x: px(startPos.x),
+        y: px(startPos.y),
+        w: px(KAABA_SIZE),
+        h: px(KAABA_SIZE),
+        src: "ic_kaaba.png",
+        color: COLORS.ACCENT,
       }));
 
       const bearingText = (this.state.qiblaBearing != null)
@@ -273,9 +264,9 @@ Page(
         : "—";
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN),
-        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 12),
+        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 16),
         w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
-        h: px(56),
+        h: px(54),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.DISPLAY_TIME),
         align_h: hmUI.align.CENTER_H,
@@ -288,7 +279,7 @@ Page(
         : "—";
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN),
-        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 72),
+        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 70),
         w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
         h: px(24),
         color: COLORS.TEXT_MUTED,
@@ -396,17 +387,23 @@ Page(
       const wasAligned = this.state.aligned;
       this.state.aligned = isAligned;
 
-      if (this._arrowWidget) {
+      // Move the Kaaba marker around the rim to the Qibla direction relative to
+      // where the watch points. rel === 0 ⇒ it sits at the top, by the arrow.
+      if (this._kaabaWidget) {
+        const pos = this.kaabaPos(rel);
         try {
-          this._arrowWidget.setProperty(hmUI.prop.MORE, {
-            angle: rel,
-            color: isAligned ? COLORS.ACCENT : COLORS.QIBLA_ARROW_SEARCHING,
+          this._kaabaWidget.setProperty(hmUI.prop.MORE, {
+            x: px(pos.x),
+            y: px(pos.y),
           });
         } catch (e) {}
       }
-      if (this._kaabaWidget) {
+      // The centre arrow turns accent green once you're facing the Qibla.
+      if (this._arrowWidget) {
         try {
-          this._kaabaWidget.setProperty(hmUI.prop.MORE, { visible: isAligned });
+          this._arrowWidget.setProperty(hmUI.prop.MORE, {
+            color: isAligned ? COLORS.ACCENT : COLORS.QIBLA_ARROW_SEARCHING,
+          });
         } catch (e) {}
       }
 

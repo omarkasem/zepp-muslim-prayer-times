@@ -36,16 +36,21 @@ const REMINDER_OFFSET_OPTIONS = [
   { value: 20, label: "20 min" },
 ];
 
-const TIME_FORMAT_OPTIONS = [
-  { value: "12h", label: "12-hour (AM/PM)" },
-  { value: "24h", label: "24-hour" },
-];
+// Short, glanceable labels (the canonical METHODS names are far too long for a
+// watch row). Keep in sync with METHOD_SHORT_LABELS in the settings page.
+const METHOD_SHORT_LABELS = {
+  mwl: "Muslim World League",
+  isna: "ISNA",
+  egyptian: "Egyptian",
+  umm_al_qura: "Umm al-Qura",
+  karachi: "Karachi",
+};
 
 function methodOptions() {
   const out = [];
   for (const id in METHODS) {
     if (METHODS[id] && METHODS[id].name) {
-      out.push({ value: id, label: METHODS[id].name });
+      out.push({ value: id, label: METHOD_SHORT_LABELS[id] || METHODS[id].name });
     }
   }
   return out;
@@ -60,9 +65,6 @@ function pickerConfig(key) {
   }
   if (key === "reminderOffset") {
     return { title: "Reminder Offset", storageKey: "reminderOffsetMin", options: REMINDER_OFFSET_OPTIONS };
-  }
-  if (key === "timeFormat") {
-    return { title: "Time Format", storageKey: "timeFormat", options: TIME_FORMAT_OPTIONS };
   }
   return null;
 }
@@ -189,7 +191,7 @@ Page(
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN + 20),
         y: px(y),
-        w: px(CONTENT_W - 60),
+        w: px(CONTENT_W - 56),
         h: px(ROW_HEIGHT),
         color: isSelected ? COLORS.ACCENT : COLORS.TEXT_PRIMARY,
         text_size: px(FONT_SIZES.BODY_LG),
