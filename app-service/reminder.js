@@ -27,7 +27,10 @@ AppService({
     }
 
     const prayer = (typeof params === "string") ? params : "";
-    const label = PRAYER_LABELS[prayer] || "Prayer";
+    // On Fridays, Dhuhr is the Jumu'ah congregation — same time, different name.
+    const label = (prayer === "dhuhr" && new Date().getDay() === 5)
+      ? "Jumu'ah"
+      : (PRAYER_LABELS[prayer] || "Prayer");
     logger.log("prayer alarm: " + prayer);
     notify({
       title: label,

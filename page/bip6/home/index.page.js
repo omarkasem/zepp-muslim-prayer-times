@@ -20,6 +20,13 @@ const PRAYERS = [
   { key: "isha", label: "Isha" },
 ];
 
+// On Fridays (getDay() === 5) the Dhuhr prayer is the Jumu'ah congregation —
+// same time, different name. Show "Jumu'ah" on that row.
+function prayerLabel(prayer, date) {
+  if (prayer.key === "dhuhr" && date.getDay() === 5) return "Jumu'ah";
+  return prayer.label;
+}
+
 // Bip 6 is 390x450 rectangular. Reserve the top for the system status bar
 // (best-effort hide via hmUI.setStatusBarVisible(false) in onInit; if it stays
 // visible, the reserve prevents content from sitting under it).
@@ -391,7 +398,7 @@ Page(
           color: labelColor,
           text_size: px(labelSize),
           align_v: hmUI.align.CENTER_V,
-          text: prayer.label,
+          text: prayerLabel(prayer, new Date()),
         }));
 
         const timeId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
@@ -457,7 +464,7 @@ Page(
           color: labelColor,
           text_size: px(labelSize),
           align_v: hmUI.align.CENTER_V,
-          text: PRAYERS[i].label,
+          text: prayerLabel(PRAYERS[i], new Date()),
         });
         hmUI.updateWidget(w.timeId, hmUI.widget.TEXT, {
           x: px(DEVICE_WIDTH - SIDE_MARGIN - 160 - 20),
