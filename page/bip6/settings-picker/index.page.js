@@ -134,8 +134,8 @@ Page(
         y: px(HEADER_Y),
         w: px(40),
         h: px(40),
-        normal_src: "ic_back.png",
-        press_src: "ic_back.png",
+        normal_src: "image/ic_back.png",
+        press_src: "image/ic_back.png",
         color: COLORS.ACCENT,
         click_func: () => {
           try { back(); } catch (e) {}
@@ -204,7 +204,7 @@ Page(
         y: px(y + (ROW_HEIGHT - 22) / 2),
         w: px(22),
         h: px(22),
-        src: isSelected ? "ic_radio_on.png" : "ic_radio_off.png",
+        src: isSelected ? "image/ic_radio_on.png" : "image/ic_radio_off.png",
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
@@ -212,8 +212,8 @@ Page(
         y: px(y),
         w: px(CONTENT_W),
         h: px(ROW_HEIGHT),
-        normal_src: "ic_transparent.png",
-        press_src: "ic_transparent.png",
+        normal_src: "image/ic_transparent.png",
+        press_src: "image/ic_transparent.png",
         color: 0x000000,
         click_func: () => this.selectOption(storageKey, option.value),
       }));

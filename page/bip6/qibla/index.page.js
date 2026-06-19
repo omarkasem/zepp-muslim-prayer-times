@@ -17,9 +17,9 @@ const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
 const CENTER_X = DEVICE_WIDTH / 2;
 const COMPASS_CENTER_Y = 208;
 const DIAL_SIZE = 220;
-const RIM_R = 104;                 // radius the Kaaba marker orbits on
-const CENTER_ARROW_SIZE = 92;      // big "your facing" arrow in the middle
-const KAABA_SIZE = 44;             // moving Qibla marker
+const CENTER_ARROW_SIZE = 110;     // rotating Qibla arrow (matches PNG size)
+const KAABA_SIZE = 52;             // fixed Kaaba target (matches PNG size)
+const CARDINAL_R = 90;             // radius for N/E/S/W letters on the dial
 
 const ALIGN_THRESHOLD_DEG = 6;
 const CALIBRATE_FALLBACK_MS = 5000;
@@ -116,8 +116,8 @@ Page(
         y: px(STATUS_BAR_RESERVE + 8),
         w: px(40),
         h: px(40),
-        normal_src: "ic_back.png",
-        press_src: "ic_back.png",
+        normal_src: "image/ic_back.png",
+        press_src: "image/ic_back.png",
         color: COLORS.ACCENT,
         click_func: () => {
           try { back(); } catch (e) {}
@@ -173,8 +173,7 @@ Page(
         y: px(cy - 30),
         w: px(60),
         h: px(60),
-        src: "ic_watch.png",
-        color: COLORS.ACCENT,
+        src: "image/ic_watch.png",
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
@@ -202,18 +201,11 @@ Page(
       }));
     },
 
-    // Returns the screen-space top-left for a KAABA_SIZE marker centered on the
-    // dial rim at `rel` degrees (0 = top / 12 o'clock, increasing clockwise).
-    kaabaPos(rel) {
-      const r = (rel * Math.PI) / 180;
-      const cxp = CENTER_X + RIM_R * Math.sin(r);
-      const cyp = COMPASS_CENTER_Y - RIM_R * Math.cos(r);
-      return { x: cxp - KAABA_SIZE / 2, y: cyp - KAABA_SIZE / 2 };
-    },
-
     renderActive() {
-      // Faint compass dial ring (decorative reference circle).
-      this.trackWidget(hmUI.createWidget(hmUI.widget.ARC, {
+      // Faint compass dial ring. Turns accent green when aligned. (Recoloring an
+      // ARC/FILL_RECT works on this firmware; tinting an IMG via `color` does NOT
+      // — it hides the image — so the arrow/Kaaba use their native PNG colors.)
+      this._dialWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.ARC, {
         x: px(CENTER_X - DIAL_SIZE / 2),
         y: px(COMPASS_CENTER_Y - DIAL_SIZE / 2),
         w: px(DIAL_SIZE),
@@ -224,39 +216,52 @@ Page(
         color: COLORS.QIBLA_DIAL,
       }));
 
-      // Fixed index dot at the very top — the "target". Align the Kaaba here.
-      this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px(CENTER_X - 5),
-        y: px(COMPASS_CENTER_Y - RIM_R - 5),
-        w: px(10),
-        h: px(10),
-        radius: px(5),
-        color: COLORS.QIBLA_ARROW_SEARCHING,
+      // Cardinal letters on the dial. They rotate with the compass so N always
+      // points to true north (positions updated on each heading change).
+      const cardinals = [
+        { label: "N", bearing: 0 },
+        { label: "E", bearing: 90 },
+        { label: "S", bearing: 180 },
+        { label: "W", bearing: 270 },
+      ];
+      this._cardinalWidgets = [];
+      for (let i = 0; i < cardinals.length; i++) {
+        const w = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+          x: px(CENTER_X - 14),
+          y: px(COMPASS_CENTER_Y - CARDINAL_R - 14),
+          w: px(28),
+          h: px(28),
+          color: COLORS.TEXT_MUTED,
+          text_size: px(FONT_SIZES.LABEL_SM),
+          align_h: hmUI.align.CENTER_H,
+          align_v: hmUI.align.CENTER_V,
+          text: cardinals[i].label,
+        }));
+        this._cardinalWidgets.push({ w: w, bearing: cardinals[i].bearing });
+      }
+
+      // Fixed Kaaba target at the top of the dial. Turn the watch until the
+      // arrow points up at the Kaaba — then you are facing the Qibla.
+      this._kaabaWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
+        x: px(CENTER_X - KAABA_SIZE / 2),
+        y: px(COMPASS_CENTER_Y - DIAL_SIZE / 2 - KAABA_SIZE / 2 + 6),
+        w: px(KAABA_SIZE),
+        h: px(KAABA_SIZE),
+        src: "image/ic_kaaba.png",
       }));
 
-      // Big arrow in the centre = the watch's own facing (always points up).
-      // Static image (no rotation) so it renders reliably; it turns green when
-      // the Kaaba marker reaches the top (you are facing the Qibla).
+      // Big arrow in the centre = the live Qibla pointer. Rotated to `rel` on
+      // every heading update (pivot = its own centre). Widget size matches the
+      // PNG so it isn't clipped.
       this._arrowWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
         x: px(CENTER_X - CENTER_ARROW_SIZE / 2),
         y: px(COMPASS_CENTER_Y - CENTER_ARROW_SIZE / 2),
         w: px(CENTER_ARROW_SIZE),
         h: px(CENTER_ARROW_SIZE),
-        src: "ic_qibla_arrow.png",
-        color: COLORS.QIBLA_ARROW_SEARCHING,
-      }));
-
-      // Moving Kaaba marker — orbits the rim to show where the Qibla is. Its
-      // position is updated on every heading change via setProperty (the proven
-      // reposition technique; image rotation is unreliable on this firmware).
-      const startPos = this.kaabaPos(0);
-      this._kaabaWidget = this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(startPos.x),
-        y: px(startPos.y),
-        w: px(KAABA_SIZE),
-        h: px(KAABA_SIZE),
-        src: "ic_kaaba.png",
-        color: COLORS.ACCENT,
+        src: "image/ic_qibla_arrow.png",
+        center_x: px(CENTER_ARROW_SIZE / 2),
+        center_y: px(CENTER_ARROW_SIZE / 2),
+        angle: 0,
       }));
 
       const bearingText = (this.state.qiblaBearing != null)
@@ -288,6 +293,20 @@ Page(
         align_v: hmUI.align.CENTER_V,
         char_space: 1,
         text: cardinal,
+      }));
+
+      // Temporary diagnostic: shows the live compass heading (or "—" when the
+      // sensor returns INVALID / uncalibrated). Remove once movement is verified.
+      this._headingDebug = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+        x: px(SIDE_MARGIN),
+        y: px(COMPASS_CENTER_Y + DIAL_SIZE / 2 + 98),
+        w: DEVICE_WIDTH - px(2 * SIDE_MARGIN),
+        h: px(22),
+        color: COLORS.TEXT_INACTIVE,
+        text_size: px(FONT_SIZES.SMALL),
+        align_h: hmUI.align.CENTER_H,
+        align_v: hmUI.align.CENTER_V,
+        text: "heading —",
       }));
     },
 
@@ -352,23 +371,27 @@ Page(
       const self = this;
       const compass = new Compass();
       this._compass = compass;
-      const onChange = function () {
-        let calibrated = false;
-        try { calibrated = !!compass.getStatus(); } catch (e) {}
-        if (self.state.phase === "calibrate" && calibrated) {
-          self.transitionToActive();
-          return;
-        }
-        if (self.state.phase === "active") {
-          self.applyHeading(compass);
-        }
-      };
+      const onChange = function () { self.handleReading(); };
       this._onChange = onChange;
-      compass.onChange(onChange);
+      try { compass.onChange(onChange); } catch (e) {}
       try { compass.start(); } catch (e) {}
+      // Poll the heading directly too: onChange is not guaranteed to fire on
+      // every firmware, and getStatus() may never report "calibrated" even when
+      // getDirectionAngle() returns usable values. Polling makes the marker
+      // track regardless.
+      this.stopPoll();
+      this._pollTimer = setInterval(function () { self.handleReading(); }, 150);
+    },
+
+    stopPoll() {
+      if (this._pollTimer) {
+        clearInterval(this._pollTimer);
+        this._pollTimer = null;
+      }
     },
 
     stopCompass() {
+      this.stopPoll();
       if (this._compass) {
         try { this._compass.stop(); } catch (e) {}
         try { if (this._onChange) this._compass.offChange(this._onChange); } catch (e) {}
@@ -377,9 +400,47 @@ Page(
       }
     },
 
-    applyHeading(compass) {
-      const angle = compass.getDirectionAngle();
-      if (typeof angle === "string" || isNaN(angle) || this.state.qiblaBearing == null) return;
+    // Single entry point for every heading sample (from onChange or the poll).
+    handleReading() {
+      if (!this._compass) return;
+      let angle;
+      try { angle = this._compass.getDirectionAngle(); } catch (e) { angle = "INVALID"; }
+      const valid = !(typeof angle === "string" || isNaN(angle));
+
+      // Temporary diagnostic readout (remove once confirmed working).
+      if (this._headingDebug) {
+        try {
+          this._headingDebug.setProperty(hmUI.prop.MORE, {
+            text: valid ? ("heading " + Math.round(angle) + "°") : "heading —",
+          });
+        } catch (e) {}
+      }
+
+      if (this.state.phase === "calibrate") {
+        // Leave the calibrate screen as soon as we get a real heading.
+        if (valid) this.transitionToActive();
+        return;
+      }
+      if (this.state.phase === "active") {
+        this.applyHeading(angle, valid);
+      }
+    },
+
+    // Place each cardinal letter on the dial at (bearing − heading) from the
+    // top, so the rose rotates and N points to true north.
+    positionCardinals(heading) {
+      if (!this._cardinalWidgets) return;
+      for (let i = 0; i < this._cardinalWidgets.length; i++) {
+        const c = this._cardinalWidgets[i];
+        const a = (normalize360(c.bearing - heading) * Math.PI) / 180;
+        const x = CENTER_X + CARDINAL_R * Math.sin(a) - 14;
+        const y = COMPASS_CENTER_Y - CARDINAL_R * Math.cos(a) - 14;
+        try { c.w.setProperty(hmUI.prop.MORE, { x: px(x), y: px(y) }); } catch (e) {}
+      }
+    },
+
+    applyHeading(angle, valid) {
+      if (!valid || this.state.qiblaBearing == null) return;
       const heading = angle;
       const rel = normalize360(this.state.qiblaBearing - heading);
       const minA = minimalAngleFromZero(rel);
@@ -387,22 +448,21 @@ Page(
       const wasAligned = this.state.aligned;
       this.state.aligned = isAligned;
 
-      // Move the Kaaba marker around the rim to the Qibla direction relative to
-      // where the watch points. rel === 0 ⇒ it sits at the top, by the arrow.
-      if (this._kaabaWidget) {
-        const pos = this.kaabaPos(rel);
-        try {
-          this._kaabaWidget.setProperty(hmUI.prop.MORE, {
-            x: px(pos.x),
-            y: px(pos.y),
-          });
-        } catch (e) {}
-      }
-      // The centre arrow turns accent green once you're facing the Qibla.
+      // Rotate the arrow to point at the Qibla relative to where the watch is
+      // pointing. rel === 0 ⇒ straight up (at the Kaaba target) ⇒ aligned.
       if (this._arrowWidget) {
         try {
-          this._arrowWidget.setProperty(hmUI.prop.MORE, {
-            color: isAligned ? COLORS.ACCENT : COLORS.QIBLA_ARROW_SEARCHING,
+          this._arrowWidget.setProperty(hmUI.prop.MORE, { angle: rel });
+        } catch (e) {}
+      }
+      // Rotate the cardinal letters so N tracks true north.
+      this.positionCardinals(heading);
+      // Aligned cue: light up the dial ring (IMG tint doesn't work, but
+      // recoloring an ARC does).
+      if (this._dialWidget) {
+        try {
+          this._dialWidget.setProperty(hmUI.prop.MORE, {
+            color: isAligned ? COLORS.ACCENT : COLORS.QIBLA_DIAL,
           });
         } catch (e) {}
       }
@@ -432,9 +492,7 @@ Page(
       this.state.aligned = false;
       this.destroyWidgets();
       this.build();
-      if (this._compass) {
-        this.applyHeading(this._compass);
-      }
+      this.handleReading();
     },
 
     trackWidget(id) {
@@ -449,6 +507,9 @@ Page(
         this._glyphWidget = null;
         this._arrowWidget = null;
         this._kaabaWidget = null;
+        this._cardinalWidgets = null;
+        this._dialWidget = null;
+        this._headingDebug = null;
         return;
       }
       for (let i = 0; i < this._widgetIds.length; i++) {
@@ -458,6 +519,9 @@ Page(
       this._glyphWidget = null;
       this._arrowWidget = null;
       this._kaabaWidget = null;
+        this._cardinalWidgets = null;
+      this._dialWidget = null;
+        this._headingDebug = null;
     },
   })
 );

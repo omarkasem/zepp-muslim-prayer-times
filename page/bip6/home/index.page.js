@@ -371,7 +371,7 @@ Page(
         y: px(CITY_Y + (CITY_H - iconSize) / 2),
         w: px(iconSize),
         h: px(iconSize),
-        src: "ic_pin.png",
+        src: "image/ic_pin.png",
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(groupX + iconSize + gap),
@@ -546,8 +546,8 @@ Page(
         y: px(NAV_Y),
         w: px(w),
         h: px(NAV_H),
-        normal_src: "ic_transparent.png",
-        press_src: "ic_transparent.png",
+        normal_src: "image/ic_transparent.png",
+        press_src: "image/ic_transparent.png",
         color: 0x000000,
         click_func: onTap,
       }));
