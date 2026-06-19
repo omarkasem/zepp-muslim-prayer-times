@@ -1,21 +1,16 @@
-You are designing the QIBLA (compass) screen for a SMARTWATCH app (not a phone). The watch is an Amazfit Bip 6: a 390 x 390 pixel ROUND AMOLED display. Everything must fit inside a circular safe area — keep important content away from the corners, which are clipped by the round bezel.
+Design the QIBLA (compass) screen for a smartwatch app called Prayer Times (it shows Muslim prayer times). It runs on a small round Amazfit Bip 6 watch: a 390 x 390 pixel ROUND AMOLED display. Everything must fit inside a circular safe area — keep important content away from the corners, which are clipped by the round bezel. The round screen is perfect for a compass; use the whole circle.
 
-The app shows Muslim prayer times. This screen points the user toward the Qibla (the direction of Mecca) using the watch compass. Generate self-contained React (one file, mock data, inline styles or Tailwind, no external libraries, no API calls). Render each design inside a 390x390 circular frame with a pure black (OLED) background so it looks like the real watch. The round display is perfect for a compass — use the whole circle.
+This feature has TWO sequential states, and I need BOTH designed for every variation, as a matched pair:
 
-Give me 3 DISTINCT design VARIATIONS of the qibla screen, clearly labeled Variation A–C, each in its own circular 390x390 frame placed side by side. Try different compass treatments, for example: a large arrow that rotates to point at the Qibla over a compass dial; a Kaaba icon marker on the rim of a rotating dial; a minimal arrow with a big "degrees to Qibla" readout.
+STATE 1 — CALIBRATE (shown first): the magnetometer needs calibrating, so this screen tells the user to move the watch in a figure-8 / rotate-the-wrist motion. Show a clear instruction like "Calibrate compass" + "Rotate your wrist in a figure-8", with a motion-hint illustration that DEPICTS the movement (e.g. a figure-8 path with an arrow, or a rotating-watch glyph). Note: this is a still image that suggests motion — the real animation will be done later in code, so just make the motion visually obvious in a single frame.
 
-Every variation must clearly show ALL of this:
-- A prominent direction indicator (arrow / marker) pointing toward the Qibla.
-- A compass dial with N / E / S / W markings.
-- The Qibla bearing in degrees (e.g. "Qibla 136°").
-- A clear "aligned" state — show what it looks like when the user is facing the Qibla exactly (e.g. the arrow turns the accent color / a checkmark / "Facing Qibla").
-- The current city (e.g. "Cairo").
-- Make at least one variation also show a "Calibrate your compass" state (figure-8 hint), since the magnetometer sometimes needs calibration.
+STATE 2 — ACTIVE COMPASS (after calibration): a live compass. It must show: a compass dial with N / E / S / W markings; a prominent arrow / marker pointing toward the Qibla; the Qibla bearing in degrees (e.g. "Qibla 136°"); the current city (e.g. "Cairo"); and a clear ALIGNED state showing what it looks like when the user is facing the Qibla exactly (e.g. the arrow/dial turns the accent color, a checkmark, or "Facing Qibla"). You can show the aligned look as part of this screen or as a small extra frame.
+
+Give me 3 DISTINCT design VARIATIONS. For EACH variation, show BOTH screens side by side as a pair, clearly labeled — e.g. "Variation A — Calibrate" and "Variation A — Compass", then "Variation B — Calibrate" / "Variation B — Compass", etc. Each screen in its own circular 390x390 frame on a pure black (OLED) background. Try different compass treatments across the variations — e.g. a large rotating arrow over a dial; a Kaaba icon marker on the rim of a rotating dial; a minimal arrow with a big degrees readout.
 
 Design constraints for a watch:
 - Dark theme, OLED black background, high contrast, LARGE legible type — read at a glance, often outdoors.
-- The compass should feel like it fills the round screen.
+- One calm accent color (green / teal / gold suits this audience). Use the accent for the Qibla direction and the aligned state.
 - No phone-style top app bars or bottom tab bars. A small "back" affordance at the top is fine.
-- One calm color accent (greens / teal / gold). Use the accent for the Qibla direction and the aligned state.
 
-Under each variation add one short line describing its tradeoff (clarity of direction vs information density vs ease of aligning). Do not write any backend or sensor logic — mock the heading and bearing.
+Generate self-contained code (one file, mock data, inline styles or Tailwind, no external libraries, no API calls). Mock the heading and bearing. Under each variation add one short line on its tradeoff (clarity of direction vs information density vs ease of aligning).
