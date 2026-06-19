@@ -31,7 +31,9 @@ app, steps were tailored:
 | 02 | market research | ⏭ skipped | 2026-06-19 | folded into `idea.md` |
 | 03 | positioning | ⏭ skipped | 2026-06-19 | folded into `idea.md` |
 | 04 | `04-prd/product-requirements.md` | ☑ done | 2026-06-19 | `01-idea/idea.md` |
-| 05 | `05-ui-sketches/{home,settings,qibla}-prompt.md` | ◐ prompts ready; awaiting `*-design.md` | 2026-06-19 | `04-prd` |
+| 05 | `05-ui-sketches/home-design.md` (Variation A) | ☑ done | 2026-06-19 | `designs/home/` (Stitch export) |
+| 05 | `05-ui-sketches/settings-design.md` (Variation A) | ☑ done | 2026-06-19 | `designs/settings/` (Stitch export) |
+| 05 | `05-ui-sketches/qibla-design.md` | ◐ awaiting Stitch export in `designs/` | — | `04-prd` |
 | 06 | `06-architecture/architecture.md` (Zepp) | ☑ done | 2026-06-19 | `04-prd` |
 | 07 | `07-ai-coding/ai-context.md` | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |
 | 08a | `08-tasks/roadmap.md` (3 epics) | ☑ done | 2026-06-19 | `04-prd`, `06-architecture` |

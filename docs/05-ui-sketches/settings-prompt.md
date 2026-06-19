@@ -1,20 +1,14 @@
-You are designing the SETTINGS screen for a SMARTWATCH app (not a phone). The watch is an Amazfit Bip 6: a 390 x 390 pixel ROUND AMOLED display. Everything must fit inside a circular safe area — keep important content away from the corners, which are clipped by the round bezel.
+Design the SETTINGS screen for a smartwatch app called Prayer Times (it shows Muslim prayer times). The final screen runs on a small round Amazfit Bip 6 watch and will SCROLL vertically, so do NOT try to fit everything into one small square — instead design it as a TALL, FULL-LENGTH vertical screen that shows the ENTIRE list of settings from top to bottom with nothing cut off. Use a narrow watch-width column (about 390px wide) and make it as tall as it needs to be to show every setting fully.
 
-The app shows Muslim prayer times. This Settings screen lets the user tune accuracy and reminders. Generate self-contained React (one file, mock data, inline styles or Tailwind, no external libraries, no API calls). Render each design inside a 390x390 circular frame with a pure black (OLED) background so it looks like the real watch.
+Dark theme: pure black (OLED) background, high contrast, large legible text and large tap targets (fingers on a small screen). Use ONE calm accent color (green / teal / gold suits this audience) for selected and active states. A simple "Settings" title at the top with a small back arrow is fine. No phone-style bottom tab bars.
 
-Give me 3 DISTINCT design VARIATIONS of the settings screen, clearly labeled Variation A–C, each in its own circular 390x390 frame placed side by side. The screen is a short vertical list the user scrolls; show the scrolled list comfortably inside the round frame. Try different patterns, for example: a simple tappable list of rows that open pickers; inline selectable chips/segmented controls; large stacked cards.
+Show the COMPLETE set of settings, each as a clear full-width row with a label and its current value, top to bottom:
 
-Every variation must clearly show ALL of these settings:
-- Calculation method — a picker with options like Umm al-Qura, Muslim World League, Egyptian, ISNA, Karachi (show one selected).
-- Asr madhab — a two-option toggle: Standard (Shafi) / Hanafi.
-- High-latitude rule — a picker: None, Middle of the Night, One-Seventh, Angle-Based.
-- Reminder offset — how many minutes before each prayer to be reminded, e.g. 0 (exactly on time), 5, 10, 15 min. Make "0 = exactly on time" clear.
+1. Calculation method — a row that opens a list of options. Show the options expanded inline so I can see them all: Umm al-Qura, Muslim World League, Egyptian, ISNA, Karachi (mark one as selected).
+2. Asr madhab — a two-option segmented toggle: Standard (Shafi) / Hanafi (show one selected).
+3. High-latitude rule — a row that opens options: None, Middle of the Night, One-Seventh, Angle-Based (show one selected).
+4. Reminder offset — how many minutes before each prayer to be reminded: options 0, 5, 10, 15, 20 minutes. Make it clear that "0" means "exactly at prayer time."
 
-Design constraints for a watch:
-- Dark theme, OLED black background, high contrast, LARGE legible tap targets — fingers on a tiny round screen.
-- Each row needs a clear label and the current value at a glance.
-- No phone-style top app bars or bottom tab bars. A small "back" affordance at the top is fine.
-- One calm color accent (greens / teal / gold). Pick a single accent and use it for selected states.
-- Show how a picker opens (e.g. the calculation-method list expanded) in at least one variation.
+Give me 2 or 3 DISTINCT full-length variations side by side (Variation A, B, C), each showing the whole scrollable settings list end to end. Try different row patterns across them — e.g. tappable rows that reveal a picker, inline expanded option lists, and large stacked cards — but every variation must show ALL four settings fully, nothing truncated. In at least one variation, show the Calculation method picker in its OPEN/expanded state with all options visible.
 
-Under each variation add one short line describing its tradeoff (tap accuracy vs density vs number of steps). Do not write any backend or persistence logic — mock everything.
+Under each variation add one short line on its tradeoff (tap accuracy vs density vs number of taps). Mock all values — no real data or logic.

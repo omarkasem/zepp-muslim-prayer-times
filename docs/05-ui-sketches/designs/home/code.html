@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Noor Design Comparison - 390x390 Smartwatch Variations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "outline-variant": "#3c4a42",
+                "on-primary": "#003824",
+                "on-background": "#e2e2e2",
+                "surface-variant": "#333535",
+                "tertiary-fixed": "#68fcbf",
+                "on-surface": "#e2e2e2",
+                "surface-container-lowest": "#0c0f0f",
+                "on-secondary-container": "#5b3800",
+                "inverse-on-surface": "#2f3131",
+                "surface-container-high": "#282a2b",
+                "on-secondary": "#472a00",
+                "on-error": "#690005",
+                "inverse-primary": "#006c49",
+                "on-tertiary": "#003825",
+                "inverse-surface": "#e2e2e2",
+                "surface-container-low": "#1a1c1c",
+                "surface-dim": "#121414",
+                "tertiary": "#45dfa4",
+                "secondary-fixed": "#ffddb8",
+                "secondary-fixed-dim": "#ffb95f",
+                "surface-container-highest": "#333535",
+                "outline": "#86948a",
+                "secondary": "#ffb95f",
+                "on-tertiary-fixed": "#002114",
+                "primary-fixed-dim": "#4edea3",
+                "surface-tint": "#4edea3",
+                "on-primary-container": "#00422b",
+                "primary-fixed": "#6ffbbe",
+                "on-error-container": "#ffdad6",
+                "background": "#121414",
+                "on-surface-variant": "#bbcabf",
+                "error": "#ffb4ab",
+                "on-primary-fixed-variant": "#005236",
+                "surface-container": "#1e2020",
+                "tertiary-fixed-dim": "#45dfa4",
+                "tertiary-container": "#00b982",
+                "surface": "#121414",
+                "on-secondary-fixed": "#2a1700",
+                "surface-bright": "#37393a",
+                "on-secondary-fixed-variant": "#653e00",
+                "on-primary-fixed": "#002113",
+                "on-tertiary-fixed-variant": "#005137",
+                "secondary-container": "#ee9800",
+                "primary-container": "#10b981",
+                "primary": "#4edea3",
+                "on-tertiary-container": "#00422c",
+                "error-container": "#93000a"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "safe-margin": "24px",
+                "edge-padding": "12px",
+                "section-margin": "16px",
+                "stack-gap": "8px"
+            },
+            "fontFamily": {
+                "headline-md": ["Plus Jakarta Sans"],
+                "label-sm": ["Plus Jakarta Sans"],
+                "display-time": ["Plus Jakarta Sans"],
+                "body-lg": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                "headline-md": ["20px", {"lineHeight": "24px", "fontWeight": "600"}],
+                "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "display-time": ["48px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-lg": ["16px", {"lineHeight": "20px", "fontWeight": "500"}],
+                "headline-lg": ["24px", {"lineHeight": "28px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0c0f0f;
+            color: #e2e2e2;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .watch-face {
+            width: 390px;
+            height: 390px;
+            border-radius: 50%;
+            background-color: #000000;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #1a1c1c;
+            flex-shrink: 0;
+        }
+        .safe-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 342px;
+            height: 342px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(238, 152, 0, 0.3);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col items-center gap-12">
+<header class="text-center space-y-2">
+<h1 class="font-headline-lg text-headline-lg text-primary">Noor Watch Face Concepts</h1>
+<p class="font-body-lg text-on-surface-variant max-w-md mx-auto">4 distinct layout variations for a circular AMOLED display (390x390px).</p>
+</header>
+<main class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+<!-- Variation A: Vertical List -->
+<section class="flex flex-col items-center gap-4">
+<div class="watch-face">
+<div class="safe-area">
+<!-- Top Bar -->
+<div class="flex flex-col items-center mt-4">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span class="font-label-sm text-label-sm">Cairo</span>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-on-surface-variant">12 Dhul-Hijjah 1447</span>
+</div>
+<!-- Prayer List -->
+<div class="flex-1 w-full flex flex-col justify-center gap-1.5 px-6">
+<div class="flex justify-between items-center opacity-50 px-2 py-1">
+<span class="font-label-sm text-label-sm">Fajr</span>
+<span class="font-body-lg text-body-lg">4:12</span>
+</div>
+<div class="flex justify-between items-center opacity-50 px-2 py-1">
+<span class="font-label-sm text-label-sm">Dhuhr</span>
+<span class="font-body-lg text-body-lg">12:01</span>
+</div>
+<!-- Active Next Prayer -->
+<div class="flex justify-between items-center bg-secondary-container/20 border border-secondary/30 rounded-full px-4 py-2 glow-gold">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Asr</span>
+<span class="text-[9px] text-secondary/80">Next in 1h 23m</span>
+</div>
+<span class="font-headline-md text-headline-md text-secondary">3:34</span>
+</div>
+<div class="flex justify-between items-center opacity-50 px-2 py-1">
+<span class="font-label-sm text-label-sm">Maghrib</span>
+<span class="font-body-lg text-body-lg">6:48</span>
+</div>
+<div class="flex justify-between items-center opacity-50 px-2 py-1">
+<span class="font-label-sm text-label-sm">Isha</span>
+<span class="font-body-lg text-body-lg">8:10</span>
+</div>
+</div>
+<!-- Bottom Bar -->
+<div class="flex justify-center gap-8 mb-4">
+<span class="material-symbols-outlined text-primary-container text-[20px]">explore</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">settings</span>
+</div>
+</div>
+<!-- Outer Progress Ring -->
+<svg class="absolute inset-0 w-full h-full rotate-[-90deg]" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" opacity="0.3" r="48" stroke="#10b981" stroke-dasharray="180 300" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="text-center">
+<h3 class="font-headline-md text-headline-md text-white">Variation A: Vertical List</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Prioritizes context of the entire day's schedule.</p>
+</div>
+</section>
+<!-- Variation B: Compact Table -->
+<section class="flex flex-col items-center gap-4">
+<div class="watch-face">
+<div class="safe-area">
+<!-- Header -->
+<div class="mt-6 flex flex-col items-center">
+<span class="font-label-sm text-label-sm text-primary">Cairo</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-1 h-1 bg-secondary rounded-full"></span>
+<span class="font-headline-md text-headline-md text-secondary">Asr in 1h 23m</span>
+<span class="w-1 h-1 bg-secondary rounded-full"></span>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-2 gap-2 mt-6 px-4">
+<div class="bg-surface-container p-3 rounded-2xl flex flex-col items-center opacity-60">
+<span class="text-[10px] text-on-surface-variant">FAJR</span>
+<span class="font-body-lg text-body-lg">4:12</span>
+</div>
+<div class="bg-surface-container p-3 rounded-2xl flex flex-col items-center opacity-60">
+<span class="text-[10px] text-on-surface-variant">DHUHR</span>
+<span class="font-body-lg text-body-lg">12:01</span>
+</div>
+<div class="col-span-2 bg-secondary/10 border border-secondary/20 p-3 rounded-2xl flex justify-between items-center px-6">
+<div class="flex flex-col">
+<span class="text-[10px] text-secondary">NEXT: ASR</span>
+<span class="font-headline-md text-headline-md text-secondary">3:34</span>
+</div>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+</div>
+<div class="bg-surface-container p-3 rounded-2xl flex flex-col items-center opacity-60">
+<span class="text-[10px] text-on-surface-variant">MAGHRIB</span>
+<span class="font-body-lg text-body-lg">6:48</span>
+</div>
+<div class="bg-surface-container p-3 rounded-2xl flex flex-col items-center opacity-60">
+<span class="text-[10px] text-on-surface-variant">ISHA</span>
+<span class="font-body-lg text-body-lg">8:10</span>
+</div>
+</div>
+<div class="mt-auto mb-6 flex items-center gap-4">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant opacity-50">explore</span>
+<span class="text-[9px] text-on-surface-variant">12 DHUL-HIJJAH 1447</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant opacity-50">settings</span>
+</div>
+</div>
+</div>
+<div class="text-center">
+<h3 class="font-headline-md text-headline-md text-white">Variation B: Compact Table</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Maximizes information density in a small area.</p>
+</div>
+</section>
+<!-- Variation C: Hero Layout -->
+<section class="flex flex-col items-center gap-4">
+<div class="watch-face">
+<div class="safe-area">
+<!-- Hero Next Prayer -->
+<div class="flex flex-col items-center pt-8 text-center">
+<span class="text-[12px] font-bold tracking-[0.2em] text-secondary-container">NEXT PRAYER</span>
+<h2 class="font-display-time text-display-time text-secondary leading-tight mt-[-4px]">ASR</h2>
+<div class="bg-secondary/20 px-3 py-1 rounded-full flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+<span class="text-[14px] font-bold text-secondary">3:34 PM</span>
+</div>
+<span class="text-[12px] text-on-surface-variant mt-2">in 1h 23m</span>
+</div>
+<!-- Horizontal Scroll Preview -->
+<div class="flex gap-3 mt-8 pb-4 opacity-70">
+<div class="flex flex-col items-center min-w-[50px]">
+<span class="text-[10px]">DHUHR</span>
+<span class="font-body-lg text-body-lg">12:01</span>
+</div>
+<div class="w-[1.5px] h-8 bg-surface-variant"></div>
+<div class="flex flex-col items-center min-w-[50px] text-primary">
+<span class="text-[10px]">MAGHRIB</span>
+<span class="font-body-lg text-body-lg">6:48</span>
+</div>
+</div>
+<!-- Corner Complications -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 text-on-surface-variant/60">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span class="text-[10px]">Cairo</span>
+</div>
+<div class="absolute bottom-8 left-12">
+<span class="material-symbols-outlined text-primary-container">explore</span>
+</div>
+<div class="absolute bottom-8 right-12">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</div>
+</div>
+</div>
+<div class="text-center">
+<h3 class="font-headline-md text-headline-md text-white">Variation C: Hero Focus</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Optimized for high glanceability of the next event.</p>
+</div>
+</section>
+<!-- Variation D: Radial Layout -->
+<section class="flex flex-col items-center gap-4">
+<div class="watch-face">
+<div class="safe-area">
+<!-- Central Info -->
+<div class="relative w-full h-full flex items-center justify-center">
+<div class="text-center z-10 flex flex-col items-center">
+<span class="text-[10px] text-on-surface-variant mb-1">12 Dhul-Hijjah</span>
+<h2 class="font-headline-lg text-headline-lg text-secondary">3:34</h2>
+<p class="font-label-sm text-label-sm text-secondary-container">Asr in 1h 23m</p>
+</div>
+<!-- Radial Times (Simulated) -->
+<div class="absolute inset-0">
+<!-- Fajr (10 o'clock) -->
+<div class="absolute top-10 left-10 text-center opacity-40">
+<span class="block text-[10px]">4:12</span>
+<span class="block text-[8px] uppercase">Fajr</span>
+</div>
+<!-- Dhuhr (1 o'clock) -->
+<div class="absolute top-10 right-10 text-center opacity-40">
+<span class="block text-[10px]">12:01</span>
+<span class="block text-[8px] uppercase">Dhuhr</span>
+</div>
+<!-- Maghrib (5 o'clock) -->
+<div class="absolute bottom-20 right-8 text-center opacity-40">
+<span class="block text-[10px]">6:48</span>
+<span class="block text-[8px] uppercase">Maghrib</span>
+</div>
+<!-- Isha (7 o'clock) -->
+<div class="absolute bottom-20 left-8 text-center opacity-40">
+<span class="block text-[10px]">8:10</span>
+<span class="block text-[8px] uppercase">Isha</span>
+</div>
+</div>
+<!-- 4 and 8 o'clock controls -->
+<div class="absolute bottom-6 left-1/4 -translate-x-1/2">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">explore</span>
+</div>
+</div>
+<div class="absolute bottom-6 right-1/4 translate-x-1/2">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+</div>
+</div>
+<!-- Top City Tag -->
+<div class="absolute top-2 left-1/2 -translate-x-1/2">
+<span class="text-[10px] font-bold text-primary px-3 py-0.5 border border-primary/20 rounded-full bg-primary/5">CAIRO</span>
+</div>
+</div>
+</div>
+<!-- Progress Arc -->
+<svg class="absolute inset-0 w-full h-full" viewbox="0 0 100 100">
+<path d="M 20 80 A 42 42 0 1 1 80 80" fill="none" opacity="0.6" stroke="#ee9800" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="text-center">
+<h3 class="font-headline-md text-headline-md text-white">Variation D: Radial Utility</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Uses the circular edge for intuitive time spatiality.</p>
+</div>
+</section>
+</main>
+<footer class="mt-8 mb-16 text-on-surface-variant/60 text-[11px] uppercase tracking-widest flex flex-col items-center gap-4">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-primary rounded-full"></span>
+<span>Active Accent</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-secondary rounded-full"></span>
+<span>Next Prayer</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-black border border-surface-variant rounded-full"></span>
+<span>AMOLED Black</span>
+</div>
+</div>
+<p>Noor Smartwatch Interface Design System v1.2</p>
+</footer>
+<script>
+        // Simple scale interaction for demo purposes
+        document.querySelectorAll('.watch-face').forEach(face => {
+            face.addEventListener('mousedown', () => {
+                face.style.transform = 'scale(0.98)';
+                face.style.transition = 'transform 0.1s ease-out';
+            });
+            face.addEventListener('mouseup', () => {
+                face.style.transform = 'scale(1)';
+            });
+            face.addEventListener('mouseleave', () => {
+                face.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>
