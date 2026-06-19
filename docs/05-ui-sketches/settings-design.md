@@ -23,6 +23,7 @@ scrollable list of rows; tapping a row that has multiple options opens its **own
 - Method options from `methods.js`: `umm_al_qura`→"Umm al-Qura", `mwl`→"Muslim World League", `egyptian`→"Egyptian", `isna`→"ISNA", `karachi`→"Karachi".
 - High-latitude options: `none`→"None", `middle_of_night`→"Middle of Night", `one_seventh`→"One-Seventh", `angle_based`→"Angle-Based". *(The mockup's "Auto" label is replaced by these real values; default = `none`.)*
 - Reminder-offset options: `0`→"At prayer time", `5`→"5 min", `10`→"10 min", `15`→"15 min", `20`→"20 min".
+- Time-format options: `12h`→"12-hour (AM/PM)", `24h`→"24-hour". Default `12h`.
 
 ## On change (important wiring)
 Any setting change must: `setSettings(...)` → **recompute today's times + reschedule alarms** via
@@ -54,6 +55,7 @@ Do this on each save. When returning to Home, Home re-reads settings and re-rend
 3. **Asr Madhab** card (height ~84): label "Asr Madhab" (top); below it a **segmented toggle** (rounded, full-width): two equal segments "Standard" / "Hanafi". Selected = fill `0x4edea3`, text `0x003824`; unselected = text `0x8f8f8f` on transparent. Tap a segment → write `madhab` immediately + update visual + run On-change.
 4. **High Latitude Rule** row (height ~56): label + current value (`0x4edea3`) + chevron. Tap → picker(`highLatRule`).
 5. **Reminder Offset** row (height ~56): label + current value (e.g. "5 min", or "At prayer time" for 0) + chevron. Tap → picker(`reminderOffset`).
+6. **Time Format** row (height ~56): label "Time Format" + current value ("12-hour (AM/PM)" / "24-hour") + chevron. Tap → picker(`timeFormat`).
 
 - Gaps ~8px between cards; horizontal padding ~12px (card), ~24px (inner text).
 

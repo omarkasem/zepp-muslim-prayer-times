@@ -57,7 +57,10 @@
       "module": {
         "page": {
           "pages": [
-            "page/bip6/home/index.page"
+            "page/bip6/home/index.page",
+            "page/bip6/settings/index.page",
+            "page/bip6/settings-picker/index.page",
+            "page/bip6/qibla/index.page"
           ]
         },
         "app-side": {

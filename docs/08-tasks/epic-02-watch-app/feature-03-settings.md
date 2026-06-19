@@ -21,9 +21,10 @@ Lets the user tune accuracy (the main accuracy lever is the method) and reminder
 
 # Public Interface
 
-- Pages only. Picker receives `router.push(... params: { key })` where `key ∈ {'method','highLatRule','reminderOffset'}`.
+- Pages only. Picker receives `router.push(... params: { key })` where `key ∈ {'method','highLatRule','reminderOffset','timeFormat'}`.
 - Canonical values (must match Epic 01 storage): method ids from `methods.js`; madhab `standard|hanafi`;
-  highLatRule `none|middle_of_night|one_seventh|angle_based`; reminderOffsetMin `0|5|10|15|20`.
+  highLatRule `none|middle_of_night|one_seventh|angle_based`; reminderOffsetMin `0|5|10|15|20`;
+  timeFormat `12h|24h` (default `12h`, added in the Steps 1–3 review fixes).
 
 # Related Services
 
@@ -39,7 +40,8 @@ Step 4 of the epic (needs `lib/reminders.js` from Step 3 and Home nav from Step 
 
 # Tasks
 
-- Main page: rows for Calculation Method, High Latitude Rule, Reminder Offset (each shows current value + chevron, opens the picker); inline segmented toggle for Asr Madhab; scrollable list; back arrow → Home.
+- Main page: rows for Calculation Method, High Latitude Rule, Reminder Offset, Time Format (each shows current value + chevron, opens the picker); inline segmented toggle for Asr Madhab; scrollable list; back arrow → Home.
+- Time Format picker options: `12h`→"12-hour (AM/PM)", `24h`→"24-hour". On change, Home re-formats times on return (Home's resume-refresh, per the Steps 1–3 review fixes).
 - Reusable picker page: title = setting name; scrollable radio list of options (label + radio); current value preselected; tap → `setSettings({[key]: value})` → `applyReminders()` → `router.back()`.
 - Resolve option lists + display labels from `methods.js` / the canonical value maps (e.g. offset `0` → "At prayer time").
 - Madhab toggle: tap a segment → `setSettings({ madhab })` → `applyReminders()` → update visual.

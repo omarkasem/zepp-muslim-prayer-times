@@ -29,22 +29,30 @@ describe('sanitizeSettings', () => {
   });
 
   it('preserves valid settings', () => {
-    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angle_based', reminderOffsetMin: 15 };
+    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angle_based', reminderOffsetMin: 15, timeFormat: '24h' };
     expect(sanitizeSettings(valid)).toEqual(valid);
   });
 
   it('clamps invalid fields to defaults', () => {
-    const partial = { method: 'unknown_method', madhab: 'hanafi', highLatRule: 'none', reminderOffsetMin: "foo" };
+    const partial = { method: 'unknown_method', madhab: 'hanafi', highLatRule: 'none', reminderOffsetMin: "foo", timeFormat: 'binary' };
     expect(sanitizeSettings(partial)).toEqual({
       method: DEFAULT_SETTINGS.method,
       madhab: 'hanafi',
       highLatRule: 'none',
-      reminderOffsetMin: DEFAULT_SETTINGS.reminderOffsetMin
+      reminderOffsetMin: DEFAULT_SETTINGS.reminderOffsetMin,
+      timeFormat: DEFAULT_SETTINGS.timeFormat
     });
   });
   
   it('parses valid string offsets', () => {
     const partial = { reminderOffsetMin: "15" };
     expect(sanitizeSettings(partial).reminderOffsetMin).toBe(15);
+  });
+
+  it('defaults timeFormat to 12h when missing or invalid', () => {
+    expect(DEFAULT_SETTINGS.timeFormat).toBe('12h');
+    expect(sanitizeSettings({}).timeFormat).toBe('12h');
+    expect(sanitizeSettings({ timeFormat: '24h' }).timeFormat).toBe('24h');
+    expect(sanitizeSettings({ timeFormat: 'weird' }).timeFormat).toBe('12h');
   });
 });

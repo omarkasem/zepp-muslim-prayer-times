@@ -2,7 +2,8 @@ export const DEFAULT_SETTINGS = {
   method: "mwl",
   madhab: "standard",
   highLatRule: "none",
-  reminderOffsetMin: 0
+  reminderOffsetMin: 0,
+  timeFormat: "12h"
 };
 
 export function validateLocation(loc) {
@@ -32,5 +33,8 @@ export function sanitizeSettings(settings) {
     offset = parseInt(settings.reminderOffsetMin, 10);
   }
   
-  return { method, madhab, highLatRule, reminderOffsetMin: offset };
+  const timeFormats = ['12h', '24h'];
+  const timeFormat = timeFormats.includes(settings.timeFormat) ? settings.timeFormat : DEFAULT_SETTINGS.timeFormat;
+  
+  return { method, madhab, highLatRule, reminderOffsetMin: offset, timeFormat };
 }
