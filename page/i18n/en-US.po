@@ -138,3 +138,9 @@ msgstr "12h"
 
 msgid "24h"
 msgstr "24h"
+
+msgid "qibla"
+msgstr "Qibla"
+
+msgid "dir"
+msgstr "ltr"

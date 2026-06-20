@@ -281,7 +281,7 @@ Page(
       this.renderNavButton(
         qiblaStartX, btnW, iconSize,
         "image/ic_compass.png", COLORS.ACCENT_DEEP,
-        "Qibla", COLORS.ACCENT,
+        t("qibla"), COLORS.ACCENT,
         () => push({ url: "page/gt/qibla/index.page", params: {} })
       );
 

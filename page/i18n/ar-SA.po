@@ -138,3 +138,9 @@ msgstr "١٢ ساعة"
 
 msgid "24h"
 msgstr "٢٤ ساعة"
+
+msgid "qibla"
+msgstr "القبلة"
+
+msgid "dir"
+msgstr "rtl"

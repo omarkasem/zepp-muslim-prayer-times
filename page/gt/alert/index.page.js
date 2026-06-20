@@ -38,14 +38,14 @@ Page(
         color: COLORS.BACKGROUND,
       }));
 
-      // Logo
-      const logoSize = 100;
+      // Logo — w/h MUST equal the PNG pixel size (ic_kaaba.png is 64x64 here).
+      const logoSize = 64;
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
         x: px((DEVICE_WIDTH - logoSize) / 2),
-        y: px(DEVICE_HEIGHT / 2 - 140),
+        y: px(DEVICE_HEIGHT / 2 - 120),
         w: px(logoSize),
         h: px(logoSize),
-        src: "image/logo.png",
+        src: "image/ic_kaaba.png",
       }));
 
       // Label (Time for ...)

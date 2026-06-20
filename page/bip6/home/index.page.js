@@ -126,6 +126,7 @@ Page(
       const loc = state.location;
       const city = (loc && loc.city) ? loc.city : "—";
       const today = new Date();
+      const hijri = toHijri(today);
       const hijriMonthStr = hijriMonth(hijri.month - 1);
       const hijriText = isRTL()
         ? (hijri.year + " " + hijriMonthStr + " " + hijri.day)
@@ -282,7 +283,7 @@ Page(
       this.renderNavButton(
         qiblaStartX, btnW, iconSize,
         "image/ic_compass.png", COLORS.ACCENT_DEEP,
-        "Qibla", COLORS.ACCENT,
+        t("qibla"), COLORS.ACCENT,
         () => push({ url: "page/bip6/qibla/index.page", params: {} })
       );
 

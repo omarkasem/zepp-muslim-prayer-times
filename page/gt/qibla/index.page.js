@@ -173,7 +173,7 @@ Page(
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.CENTER_H,
         align_v: hmUI.align.CENTER_V,
-        text: t("figure8_motion"),
+        text: t("figure_8_hint"),
       }));
     },
 
