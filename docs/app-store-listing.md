@@ -16,29 +16,23 @@ Muslim Prayer Times
 **App Introduction** (short tagline)
 
 ```
-Accurate daily prayer times, smart reminders, and a live Qibla compass — right on your wrist.
+Prayer times, reminders & Qibla compass
 ```
 
 **App Details** (full description)
 
 ```
-Muslim Prayer Times brings the five daily prayers to your Amazfit watch, computed
-on-device for your location — no phone needed once your location is set.
+Five daily prayers on your Amazfit watch, computed on-device — no phone needed once your location is set.
 
 Features
-• Five daily prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha) at a glance.
-• The current prayer is highlighted with a live countdown to the next one.
-• Jumu'ah shown automatically in place of Dhuhr on Fridays.
-• Hijri (Islamic) date display.
-• Prayer reminders/notifications with an adjustable offset (at time, 5/10/15/20 min before).
-• Live Qibla compass: a rotating arrow points to Makkah; aligns and vibrates when you face it.
-• Multiple calculation methods: Muslim World League, Umm al-Qura, Egyptian, ISNA, Karachi.
-• Asr madhab selection (Standard / Hanafi).
-• High-latitude rules (Middle of Night, One-Seventh, Angle-Based).
-• 12-hour / 24-hour time format.
+• Five prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha) at a glance.
+• Current prayer highlighted with a live countdown to the next.
+• Jumu'ah on Fridays; Hijri date display.
+• Reminders with adjustable offset (at time, 5/10/15/20 min before).
+• Live Qibla compass pointing to Makkah, vibrating when you face it.
+• Methods: MWL, Umm al-Qura, Egyptian, ISNA, Karachi; Asr madhab; high-latitude rules; 12/24h.
 
-Your location is determined via your phone's internet connection (IP-based) and stored
-on the watch; the app does not track or share your location.
+Location is IP-based and stored on the watch; never tracked or shared.
 ```
 
 ---
@@ -54,29 +48,24 @@ on the watch; the app does not track or share your location.
 **App Introduction** (short tagline)
 
 ```
-مواقيت صلاة دقيقة، وتذكيرات ذكية، وبوصلة قبلة حيّة — على معصمك مباشرة.
+مواقيت الصلاة والتذكيرات وبوصلة القبلة
 ```
 
 **App Details** (full description)
 
 ```
-يعرض تطبيق "مواقيت الصلاة" أوقات الصلوات الخمس على ساعة أمازفيت، ويحسبها على الجهاز
-وفقًا لموقعك — دون الحاجة إلى الهاتف بعد ضبط الموقع.
+يعرض "مواقيت الصلاة" أوقات الصلوات الخمس على ساعة أمازفيت ويحسبها على الجهاز وفقًا لموقعك — دون حاجة إلى الهاتف بعد ضبط الموقع.
 
 المميزات
-• أوقات الصلوات الخمس (الفجر، الظهر، العصر، المغرب، العشاء) بنظرة واحدة.
+• الصلوات الخمس (الفجر، الظهر، العصر، المغرب، العشاء) بنظرة واحدة.
 • تمييز الصلاة الحالية مع عدّاد تنازلي للصلاة التالية.
-• عرض "الجمعة" تلقائيًا بدل الظهر يوم الجمعة.
+• عرض "الجمعة" بدل الظهر يوم الجمعة.
 • عرض التاريخ الهجري.
-• تذكيرات/إشعارات للصلاة مع إمكانية ضبط وقت التذكير (عند الأذان، أو قبله بـ 5/10/15/20 دقيقة).
-• بوصلة قبلة حيّة: سهم يدور ليشير إلى مكة، ويهتزّ عند مواجهة القبلة.
-• طرق حساب متعددة: رابطة العالم الإسلامي، أم القرى، الهيئة المصرية، ISNA، كراتشي.
-• اختيار مذهب العصر (قياسي / حنفي).
-• قواعد خطوط العرض المرتفعة (منتصف الليل، السُّبع، حسب الزاوية).
-• تنسيق الوقت 12 / 24 ساعة.
+• تذكيرات مع ضبط الوقت (عند الأذان أو قبله بـ 5/10/15/20 دقيقة).
+• بوصلة قبلة حيّة تشير إلى مكة وتهتزّ عند مواجهتها.
+• طرق حساب متعددة، ومذهب العصر، وقواعد خطوط العرض المرتفعة، وتنسيق 12/24 ساعة.
 
-يُحدَّد موقعك عبر اتصال الإنترنت في هاتفك (استنادًا إلى عنوان IP) ويُخزَّن على الساعة؛
-لا يتتبّع التطبيق موقعك ولا يشاركه.
+يُحدَّد موقعك عبر إنترنت هاتفك (IP) ويُخزَّن على الساعة؛ لا يُتتبَّع ولا يُشارَك.
 ```
 
 ---
@@ -99,53 +88,45 @@ XhoWnmWcVxzgGZawYqvMYzRXPbGhNtkq.png
 
 ```
 Privacy Policy — Muslim Prayer Times
-Last updated: 2026-06-19
+Last updated: 2026-06-20
 
 Muslim Prayer Times ("the app") is a prayer-times and Qibla utility for Amazfit/Zepp
 watches. We respect your privacy. This policy explains exactly what data the app handles.
 
-1. Data we collect
-- Approximate location: city name, latitude/longitude, and timezone. This is determined
-  from your internet IP address (via the paired phone's connection), NOT from GPS. The app
-  does not request or use device GPS/positioning.
-- App settings you choose: calculation method, Asr madhab, high-latitude rule, reminder
-  offset, and time format.
-- Device information: screen dimensions, used only to lay out the interface correctly.
-We do NOT collect names, accounts, email addresses, contacts, health/heart-rate data,
-advertising identifiers, or any personally identifying information. The app has no user
-accounts and no analytics or tracking.
+1. Data we handle
+- Approximate location (city, latitude/longitude, timezone), derived from your internet IP
+  address via the paired phone — NOT GPS. The app does not use device positioning.
+- Settings you choose: calculation method, Asr madhab, high-latitude rule, reminder offset,
+  time format.
+- Device info: screen dimensions, used only for layout.
+We do NOT collect names, accounts, contacts, health data, advertising IDs, or any personal
+identifiers. No accounts, analytics, or tracking.
 
-2. How we use the data
-- The approximate location is used solely to calculate prayer times and the Qibla
-  (direction to Makkah) for your area.
-- Your settings are used to compute and schedule prayer times and reminders.
-The compass/geomagnetic sensor is read only while the Qibla screen is open, on-device, to
-rotate the direction arrow; its readings are not stored or transmitted.
+2. How it is used
+- Location is used only to calculate prayer times and the Qibla direction; settings to
+  compute and schedule reminders. The compass is read only while the Qibla screen is open,
+  on-device, and is never stored or transmitted.
 
-3. How the data is stored
-- Your location and settings are stored locally on the watch (local storage) only. They are
-  not uploaded to us; we operate no servers and receive none of your data.
+3. Storage
+- Location and settings are stored locally on the watch only; we operate no servers and
+  receive none of your data. Uninstalling the app removes them.
 
-4. Data sharing and third parties
-- We do not sell, rent, or share your data.
-- To determine your approximate location, the paired phone makes a network request to a
-  third-party IP-geolocation service: ipwho.is (primary) or ipapi.co (fallback). These
-  services receive the request's IP address and return the corresponding city, coordinates,
-  and timezone. Their handling of that request is governed by their own privacy policies
-  (https://ipwho.is and https://ipapi.co). No other data is sent to them.
+4. Third parties
+- We do not sell, rent, or share your data. To find your approximate location, the paired
+  phone sends a network request to IP-geolocation services, tried in order until one
+  responds: geojs.io, reallyfreegeoip.org, ipinfo.io, ipapi.co, ipwho.is. To show the city
+  name in your language, the coordinates are sent to BigDataCloud (bigdatacloud.net). These
+  services receive only the request's IP/coordinates and return location details, under their
+  own privacy policies. No other data is sent.
 
-5. Data retention and deletion
-- Cached location and settings remain on the watch until you change them or uninstall the
-  app. Uninstalling the app removes this local data.
+5. Children
+- The app is not directed to children and collects no personal information.
 
-6. Children's privacy
-- The app is not directed to children and collects no personal information from anyone.
+6. Changes
+- We may update this policy; the "Last updated" date reflects any change.
 
-7. Changes to this policy
-- We may update this policy; the "Last updated" date will reflect any change.
-
-8. Contact
-- Questions: [your contact email]
+7. Contact
+- Questions: omar.kasem207@gmail.com
 ```
 
 ### Permission selections (submission form)
@@ -157,10 +138,10 @@ Selections for the form's permission questions, with justification. Derived from
 |---|---|---|
 | Call Permission | **None** | The app makes no phone calls. |
 | Heart Rate | **No** | No health/heart-rate sensors are used. |
-| Connect to the network | **Yes** | Companion app fetches approximate location + timezone via IP-geolocation (`ipwho.is`, fallback `ipapi.co`). |
+| Connect to the network | **Yes** | Companion app fetches approximate location + timezone via third-party IP-geolocation services (geojs, reallyfreegeoip, ipinfo, ipapi, ipwho.is) and BigDataCloud reverse-geocoding for the localized city name. |
 | Positioning | **No** | No GPS/positioning permission is requested; location is IP-based via the network, not device GPS. |
 | Run in background | **Yes** | A background service schedules prayer-time alarms/reminders. |
-| Others | **Yes** | Notifications (`device:os.notification`), alarms (`device:os.alarm`), compass/geomagnetic sensor for Qibla (`device:os.compass`), local storage (`device:os.local_storage`), device info (`data:os.device.info`). |
+| Others | **Yes** | Alarms (`device:os.alarm`), compass/geomagnetic sensor for Qibla (`device:os.compass`), local storage (`device:os.local_storage`), device info (`data:os.device.info`). |
 
 ---
 
@@ -191,7 +172,7 @@ Main screen (Home)
 - Two buttons navigate to the Qibla compass and to Settings.
 
 Reminders
-- Schedules a notification (with vibration) at each prayer time, or a chosen number of
+- Schedules a full-screen alert (with vibration) at each prayer time, or a chosen number of
   minutes before it (at time / 5 / 10 / 15 / 20). Reminders re-schedule automatically each day.
 
 Qibla compass
@@ -214,10 +195,11 @@ paired phone), used only to compute prayer times and the Qibla.
 ### Per-permission usage (if the form asks separately)
 
 - **Network:** One lookup (and on manual refresh) of city, coordinates, and timezone from the
-  IP address via the paired phone. Required for accurate prayer times and Qibla. No personal
-  data sent — only a request to a public IP-geolocation endpoint.
+  IP address via the paired phone, using public IP-geolocation services with a fallback chain
+  plus BigDataCloud reverse-geocoding for the localized city name. Required for accurate prayer
+  times and Qibla. No personal data sent — only the IP/coordinates of the request.
 - **Background execution:** Schedule and fire prayer reminders even when the UI is closed.
-- **Notifications & Alarms:** Alert the user at (or before) each prayer time.
+- **Alarms:** Alert the user at (or before) each prayer time.
 - **Compass (geomagnetic sensor):** Determine the watch's heading so the Qibla arrow points to Makkah.
 - **Local storage:** Cache the resolved location and user settings on the watch.
 - **Device info:** Read screen dimensions for correct layout.

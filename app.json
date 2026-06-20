@@ -5,8 +5,8 @@
     "appName": "Muslim Prayer Times",
     "appType": "app",
     "version": {
-      "code": 12,
-      "name": "1.3.5"
+      "code": 13,
+      "name": "1.3.6"
     },
     "icon": "icon.png",
     "vender": "zepp",
@@ -15,7 +15,6 @@
   "permissions": [
     "data:os.device.info",
     "device:os.local_storage",
-    "device:os.notification",
     "device:os.alarm",
     "device:os.compass"
   ],
