@@ -7,6 +7,7 @@ import { toHijri } from "../../../shared/hijri";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createHomeController, PRAYERS, formatTime, prayerLabel } from "../../../lib/controllers/home-controller";
 import { isRTL, hijriMonth, t } from "../../../lib/i18n";
+import { scheduleTestAlarms } from "../../../lib/test-alarms"; // TEST ONLY — remove before release
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
 
@@ -95,6 +96,14 @@ Page(
         w: DEVICE_WIDTH,
         h: DEVICE_HEIGHT,
         color: COLORS.BACKGROUND,
+      }));
+
+      // TEST ONLY — remove before release. Tap to schedule 10 alarms ~15s apart.
+      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
+        x: px(DEVICE_WIDTH - 70), y: px(2), w: px(68), h: px(28),
+        radius: px(6), normal_color: 0x552200, press_color: 0x884400,
+        text: "TEST", text_size: px(16), color: 0xffffff,
+        click_func: () => { scheduleTestAlarms(10, 15); },
       }));
 
       const state = this.ctrl.state;

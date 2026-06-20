@@ -127,6 +127,9 @@ msgstr "الاتجاه"
 msgid "time_for"
 msgstr "حان وقت"
 
+msgid "min"
+msgstr "دقيقة"
+
 msgid "dismiss"
 msgstr "إغلاق"
 

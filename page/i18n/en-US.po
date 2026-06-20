@@ -127,6 +127,9 @@ msgstr "heading"
 msgid "time_for"
 msgstr "Time for"
 
+msgid "min"
+msgstr "min"
+
 msgid "dismiss"
 msgstr "Dismiss"
 
