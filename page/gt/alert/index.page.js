@@ -30,84 +30,95 @@ Page(
     },
 
     build() {
+      const W = DEVICE_WIDTH;
+      const H = DEVICE_HEIGHT;
+      const state = this.ctrl.state;
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: 0,
-        y: 0,
-        w: DEVICE_WIDTH,
-        h: DEVICE_HEIGHT,
-        color: COLORS.BACKGROUND,
+        x: 0, y: 0, w: W, h: H, color: COLORS.BACKGROUND,
       }));
 
-      // Logo — w/h MUST equal the PNG pixel size (ic_kaaba.png is 64x64 here).
-      const logoSize = 64;
+      // App icon (app_icon.png is 112x112).
+      const iconSize = 104;
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px((DEVICE_WIDTH - logoSize) / 2),
-        y: px(DEVICE_HEIGHT / 2 - 120),
-        w: px(logoSize),
-        h: px(logoSize),
-        src: "image/ic_kaaba.png",
+        x: px((W - iconSize) / 2),
+        y: px(H / 2 - 150),
+        w: px(iconSize),
+        h: px(iconSize),
+        src: "image/app_icon.png",
       }));
 
-      // Label (Time for ...)
-      this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(32),
-        y: px(DEVICE_HEIGHT / 2 - 20),
-        w: DEVICE_WIDTH - px(64),
-        h: px(40),
-        color: COLORS.TEXT_MUTED,
-        text_size: px(FONT_SIZES.BODY_LG),
-        align_h: hmUI.align.CENTER_H,
-        align_v: hmUI.align.CENTER_V,
-        text: t("time_for"),
-      }));
+      const isPre = state.offsetMin > 0;
+      const nameY = isPre ? H / 2 - 30 : H / 2 + 6;
 
-      // Prayer Name
+      // "Time for" ABOVE the name when the reminder is at prayer time.
+      if (!isPre) {
+        this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+          x: px(32), y: px(H / 2 - 34), w: W - px(64), h: px(34),
+          color: COLORS.TEXT_MUTED,
+          text_size: px(FONT_SIZES.LABEL_SM),
+          align_h: hmUI.align.CENTER_H,
+          align_v: hmUI.align.CENTER_V,
+          text: state.context,
+        }));
+      }
+
+      // Prayer name — hero
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(32),
-        y: px(DEVICE_HEIGHT / 2 + 20),
-        w: DEVICE_WIDTH - px(64),
-        h: px(56),
+        x: px(32), y: px(nameY), w: W - px(64), h: px(72),
         color: COLORS.ACCENT,
-        text_size: px(FONT_SIZES.DISPLAY_TIME),
+        text_size: px(60),
         align_h: hmUI.align.CENTER_H,
         align_v: hmUI.align.CENTER_V,
-        text: this.ctrl.state.label,
+        text: state.label,
       }));
 
-      // Dismiss Button
-      const btnW = 180;
-      const btnH = 56;
+      // "in 10 min" BELOW the name when the reminder is before the prayer.
+      if (isPre) {
+        this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+          x: px(32), y: px(nameY + 80), w: W - px(64), h: px(38),
+          color: COLORS.NEXT_PRAYER_TEXT,
+          text_size: px(FONT_SIZES.BODY_LG),
+          align_h: hmUI.align.CENTER_H,
+          align_v: hmUI.align.CENTER_V,
+          text: state.context,
+        }));
+      }
+
+      // Prayer time — large supporting value
+      if (state.time) {
+        this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
+          x: px(32), y: px(isPre ? H / 2 + 86 : H / 2 + 84), w: W - px(64), h: px(60),
+          color: COLORS.TEXT_PRIMARY,
+          text_size: px(FONT_SIZES.DISPLAY_TIME),
+          align_h: hmUI.align.CENTER_H,
+          align_v: hmUI.align.CENTER_V,
+          text: state.time,
+        }));
+      }
+
+      // Dismiss button
+      const btnW = 200;
+      const btnH = 64;
+      const btnX = (W - btnW) / 2;
+      const btnY = H - 104;
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
-        x: px((DEVICE_WIDTH - btnW) / 2),
-        y: px(DEVICE_HEIGHT - 100),
-        w: px(btnW),
-        h: px(btnH),
-        radius: px(btnH / 2),
-        color: COLORS.CARD,
+        x: px(btnX), y: px(btnY), w: px(btnW), h: px(btnH),
+        radius: px(btnH / 2), color: COLORS.CARD,
       }));
-
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px((DEVICE_WIDTH - btnW) / 2),
-        y: px(DEVICE_HEIGHT - 100),
-        w: px(btnW),
-        h: px(btnH),
+        x: px(btnX), y: px(btnY), w: px(btnW), h: px(btnH),
         color: COLORS.TEXT_PRIMARY,
         text_size: px(FONT_SIZES.LABEL_SM),
         align_h: hmUI.align.CENTER_H,
         align_v: hmUI.align.CENTER_V,
         text: t("dismiss"),
       }));
-
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px((DEVICE_WIDTH - btnW) / 2),
-        y: px(DEVICE_HEIGHT - 100),
-        w: px(btnW),
-        h: px(btnH),
+        x: px(btnX), y: px(btnY), w: px(btnW), h: px(btnH),
         normal_src: "image/ic_transparent.png",
         press_src: "image/ic_transparent.png",
-        click_func: () => {
-          this.ctrl.dismiss();
-        },
+        click_func: () => { this.ctrl.dismiss(); },
       }));
     },
 
