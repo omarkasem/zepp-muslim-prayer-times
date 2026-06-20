@@ -142,5 +142,11 @@ msgstr "24h"
 msgid "qibla"
 msgstr "Qibla"
 
+msgid "update_location"
+msgstr "Update Location"
+
+msgid "updating"
+msgstr "Updating…"
+
 msgid "dir"
 msgstr "ltr"

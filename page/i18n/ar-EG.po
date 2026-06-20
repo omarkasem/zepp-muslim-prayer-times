@@ -98,7 +98,7 @@ msgid "unknown_setting"
 msgstr "إعداد غير معروف"
 
 msgid "calibrating"
-msgstr "جارٍ المعايرة..."
+msgstr "جارٍ الضبط..."
 
 msgid "figure_8_hint"
 msgstr "حرك ساعتك بشكل رقم ٨"
@@ -141,6 +141,12 @@ msgstr "٢٤ ساعة"
 
 msgid "qibla"
 msgstr "القبلة"
+
+msgid "update_location"
+msgstr "تحديث الموقع"
+
+msgid "updating"
+msgstr "جارٍ التحديث…"
 
 msgid "dir"
 msgstr "rtl"

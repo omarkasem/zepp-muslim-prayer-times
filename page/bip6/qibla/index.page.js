@@ -2,7 +2,6 @@ import { BasePage } from "@zeppos/zml/base-page";
 import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
-import { back } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createQiblaController, bearingToCardinal, normalize360 } from "../../../lib/controllers/qibla-controller";
@@ -84,19 +83,6 @@ Page(
         w: DEVICE_WIDTH,
         h: DEVICE_HEIGHT,
         color: COLORS.BACKGROUND,
-      }));
-
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: isRTL() ? px(DEVICE_WIDTH - SIDE_MARGIN - 40) : px(SIDE_MARGIN),
-        y: px(STATUS_BAR_RESERVE + 8),
-        w: px(40),
-        h: px(40),
-        normal_src: "image/ic_back.png",
-        press_src: "image/ic_back.png",
-        color: COLORS.ACCENT,
-        click_func: () => {
-          try { back(); } catch (e) {}
-        },
       }));
 
       const phase = this.ctrl.state.phase;

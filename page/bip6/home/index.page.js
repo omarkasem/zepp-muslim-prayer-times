@@ -113,6 +113,20 @@ Page(
           text_style: hmUI.text_style.WRAP,
           text: phase === "loading" ? t("calibrating") : t("location_required"),
         }));
+        if (phase === "unavailable") {
+          // Tap the message to retry the location fetch.
+          this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
+            x: px(SIDE_MARGIN),
+            y: px(170),
+            w: px(CONTENT_W),
+            h: px(80),
+            normal_src: "image/ic_transparent.png",
+            press_src: "image/ic_transparent.png",
+            click_func: () => {
+              if (this.ctrl) this.ctrl.refreshLocation();
+            },
+          }));
+        }
         this.renderBottomNav();
         return;
       }
@@ -132,7 +146,7 @@ Page(
         ? (hijri.year + " " + hijriMonthStr + " " + hijri.day)
         : (hijri.day + " " + hijriMonthStr + " " + hijri.year).toUpperCase();
 
-      const iconSize = 22;
+      const iconSize = 24;
       const gap = 8;
       const textW = Math.min(estTextW(city, FONT_SIZES.LABEL_SM), CONTENT_W - iconSize - gap);
       const groupW = iconSize + gap + textW;
@@ -159,6 +173,19 @@ Page(
         align_h: rtl ? hmUI.align.RIGHT : hmUI.align.LEFT,
         align_v: hmUI.align.CENTER_V,
         text: city,
+      }));
+
+      // Tap the city/header to re-fetch the location.
+      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
+        x: px(SIDE_MARGIN),
+        y: px(CITY_Y - 6),
+        w: px(CONTENT_W),
+        h: px(CITY_H + 12),
+        normal_src: "image/ic_transparent.png",
+        press_src: "image/ic_transparent.png",
+        click_func: () => {
+          if (this.ctrl) this.ctrl.refreshLocation();
+        },
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
@@ -278,7 +305,7 @@ Page(
       const rtl = isRTL();
       const qiblaStartX = rtl ? SIDE_MARGIN + btnW + gap : SIDE_MARGIN;
       const settingsStartX = rtl ? SIDE_MARGIN : SIDE_MARGIN + btnW + gap;
-      const iconSize = 26;
+      const iconSize = 20;
 
       this.renderNavButton(
         qiblaStartX, btnW, iconSize,
@@ -322,7 +349,6 @@ Page(
         w: px(iconSize),
         h: px(iconSize),
         src: iconSrc,
-        color: iconColor,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {

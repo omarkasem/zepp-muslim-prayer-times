@@ -2,10 +2,12 @@ import { BasePage } from "@zeppos/zml/base-page";
 import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
-import { push, back } from "@zos/router";
+import { push } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createSettingsController, methodLabel, highLatLabel, reminderOffsetLabel } from "../../../lib/controllers/settings-controller";
+import { getLocation } from "../../../shared/storage";
+import { requestAndStoreLocation } from "../../../lib/location";
 import { isRTL, t } from "../../../lib/i18n";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
@@ -50,21 +52,6 @@ Page(
         color: COLORS.BACKGROUND,
       }));
 
-      const rtl = isRTL();
-
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: rtl ? px(DEVICE_WIDTH - SIDE_MARGIN - 40) : px(SIDE_MARGIN),
-        y: px(HEADER_Y),
-        w: px(40),
-        h: px(40),
-        normal_src: "image/ic_back.png",
-        press_src: "image/ic_back.png",
-        color: COLORS.ACCENT,
-        click_func: () => {
-          try { back(); } catch (e) {}
-        },
-      }));
-
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN),
         y: px(HEADER_Y + 4),
@@ -81,6 +68,13 @@ Page(
       if (!s) return;
 
       let y = LIST_TOP;
+
+      const loc = getLocation();
+      const cityLabel = this._locating
+        ? t("updating")
+        : ((loc && loc.city) ? loc.city : "—");
+      y = this.renderNavRow(y, t("update_location"), cityLabel, () => this.updateLocation());
+
       y = this.renderNavRow(y, t("calc_method"), methodLabel(s.method), () => this.openPicker("method"));
 
       y = this.renderToggleCard(y, t("asr_madhab"), [
@@ -110,6 +104,22 @@ Page(
         h: px(64),
         color: COLORS.BACKGROUND,
       }));
+    },
+
+    updateLocation() {
+      if (this._locating) return;
+      this._locating = true;
+      this.rebuild();
+      const self = this;
+      requestAndStoreLocation((req) => self.request(req))
+        .then(() => {
+          self._locating = false;
+          if (self._widgetIds) self.rebuild();
+        })
+        .catch(() => {
+          self._locating = false;
+          if (self._widgetIds) self.rebuild();
+        });
     },
 
     openPicker(key) {

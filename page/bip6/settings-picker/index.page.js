@@ -2,7 +2,7 @@ import { BasePage } from "@zeppos/zml/base-page";
 import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
-import { push, back } from "@zos/router";
+import { back } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createSettingsPickerController } from "../../../lib/controllers/settings-picker-controller";
@@ -48,21 +48,6 @@ Page(
         w: DEVICE_WIDTH,
         h: DEVICE_HEIGHT,
         color: COLORS.BACKGROUND,
-      }));
-
-      const rtl = isRTL();
-
-      this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: rtl ? px(DEVICE_WIDTH - SIDE_MARGIN - 40) : px(SIDE_MARGIN),
-        y: px(HEADER_Y),
-        w: px(40),
-        h: px(40),
-        normal_src: "image/ic_back.png",
-        press_src: "image/ic_back.png",
-        color: COLORS.ACCENT,
-        click_func: () => {
-          try { back(); } catch (e) {}
-        },
       }));
 
       const config = this.ctrl.state.config;

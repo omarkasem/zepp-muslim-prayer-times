@@ -41,6 +41,32 @@ function fetchFromIpapi() {
   });
 }
 
+// Reverse-geocode the city name in the requested language (BigDataCloud's
+// client endpoint is free + key-less and supports localityLanguage). Used to
+// localize the city label (e.g. Arabic). Falls back to the IP-provided name.
+function fetchLocalizedCity(lat, lon, lang) {
+  const url =
+    "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" +
+    lat + "&longitude=" + lon + "&localityLanguage=" + lang;
+  return fetch({ url: url, method: "GET" }).then((res) => {
+    const d = parseBody(res);
+    if (d) {
+      return d.city || d.locality || d.principalSubdivision || "";
+    }
+    return "";
+  });
+}
+
+function withLocalizedCity(loc, lang) {
+  if (!lang) return Promise.resolve(loc);
+  return fetchLocalizedCity(loc.lat, loc.lon, lang)
+    .then((name) => {
+      if (name) loc.city = name;
+      return loc;
+    })
+    .catch(() => loc);
+}
+
 AppSideService(
   BaseSideService({
     onInit() {},
@@ -49,8 +75,10 @@ AppSideService(
 
     onRequest(req, res) {
       if (req.method === "GET_LOCATION") {
+        const lang = (req.params && req.params.lang) || "";
         fetchFromIpwhois()
           .catch(() => fetchFromIpapi())
+          .then((loc) => withLocalizedCity(loc, lang))
           .then((loc) => res(null, loc))
           .catch((err) => res((err && err.message) || "location lookup failed"));
       } else {
