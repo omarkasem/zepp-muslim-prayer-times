@@ -1,3 +1,140 @@
-
 msgid "appName"
-msgstr "Prayer Times"
+msgstr "Muslim Prayer Times"
+
+msgid "prayer_fajr"
+msgstr "Fajr"
+
+msgid "prayer_dhuhr"
+msgstr "Dhuhr"
+
+msgid "prayer_asr"
+msgstr "Asr"
+
+msgid "prayer_maghrib"
+msgstr "Maghrib"
+
+msgid "prayer_isha"
+msgstr "Isha"
+
+msgid "prayer_jumuah"
+msgstr "Jumu'ah"
+
+msgid "next"
+msgstr "Next"
+
+msgid "in"
+msgstr "in"
+
+msgid "tomorrow"
+msgstr "Tomorrow"
+
+msgid "settings"
+msgstr "Settings"
+
+msgid "calc_method"
+msgstr "Calculation Method"
+
+msgid "asr_madhab"
+msgstr "Asr Madhab"
+
+msgid "high_lat_rule"
+msgstr "High Latitude Rule"
+
+msgid "reminder_offset"
+msgstr "Reminder Offset"
+
+msgid "time_format"
+msgstr "Time Format"
+
+msgid "standard"
+msgstr "Standard"
+
+msgid "hanafi"
+msgstr "Hanafi"
+
+msgid "none"
+msgstr "None"
+
+msgid "middle_of_night"
+msgstr "Middle of Night"
+
+msgid "one_seventh"
+msgstr "One-Seventh"
+
+msgid "angle_based"
+msgstr "Angle-Based"
+
+msgid "at_prayer_time"
+msgstr "At prayer time"
+
+msgid "5_min"
+msgstr "5 min"
+
+msgid "10_min"
+msgstr "10 min"
+
+msgid "15_min"
+msgstr "15 min"
+
+msgid "20_min"
+msgstr "20 min"
+
+msgid "method_mwl"
+msgstr "Muslim World League"
+
+msgid "method_isna"
+msgstr "ISNA"
+
+msgid "method_egyptian"
+msgstr "Egyptian"
+
+msgid "method_umm_al_qura"
+msgstr "Umm al-Qura"
+
+msgid "method_karachi"
+msgstr "Karachi"
+
+msgid "unknown_setting"
+msgstr "Unknown setting"
+
+msgid "calibrating"
+msgstr "Calibrating…"
+
+msgid "figure_8_hint"
+msgstr "Move your watch in a figure-8 motion"
+
+msgid "mecca"
+msgstr "MECCA"
+
+msgid "cardinal_n"
+msgstr "N"
+
+msgid "cardinal_e"
+msgstr "E"
+
+msgid "cardinal_s"
+msgstr "S"
+
+msgid "cardinal_w"
+msgstr "W"
+
+msgid "location_required"
+msgstr "Location required for Qibla direction."
+
+msgid "heading"
+msgstr "heading"
+
+msgid "time_for"
+msgstr "Time for"
+
+msgid "dismiss"
+msgstr "Dismiss"
+
+msgid "prayer"
+msgstr "Prayer"
+
+msgid "12h"
+msgstr "12h"
+
+msgid "24h"
+msgstr "24h"

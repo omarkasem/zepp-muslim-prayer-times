@@ -4,9 +4,9 @@ import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { push, back } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
-import { getSettings, setSettings } from "../../../shared/storage";
-import { applyReminders } from "../../../lib/reminders";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
+import { createSettingsController, methodLabel, highLatLabel, reminderOffsetLabel } from "../../../lib/controllers/settings-controller";
+import { isRTL, t } from "../../../lib/i18n";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
 
@@ -15,66 +15,28 @@ const SIDE_MARGIN = 32;
 const CONTENT_W = DEVICE_WIDTH - 2 * SIDE_MARGIN;
 const HEADER_Y = STATUS_BAR_RESERVE + 12;
 const LIST_TOP = STATUS_BAR_RESERVE + 80;
-const CARD_PAD = 24;          // inner horizontal padding
-const NAV_CARD_HEIGHT = 96;   // stacked label + value
+const CARD_PAD = 24;
+const NAV_CARD_HEIGHT = 96;
 const MADHAB_HEIGHT = 128;
 const CARD_RADIUS = 24;
 const CARD_GAP = 12;
 const CHEVRON_SIZE = 20;
 
-const METHOD_SHORT_LABELS = {
-  mwl: "Muslim World League",
-  isna: "ISNA",
-  egyptian: "Egyptian",
-  umm_al_qura: "Umm al-Qura",
-  karachi: "Karachi",
-};
-
-const HIGH_LAT_LABELS = {
-  none: "None",
-  middle_of_night: "Middle of Night",
-  one_seventh: "One-Seventh",
-  angle_based: "Angle-Based",
-};
-
-const REMINDER_OFFSET_LABELS = {
-  0: "At prayer time",
-  5: "5 min",
-  10: "10 min",
-  15: "15 min",
-  20: "20 min",
-};
-
-function methodLabel(id) {
-  return METHOD_SHORT_LABELS[id] || "—";
-}
-
-function highLatLabel(id) {
-  return HIGH_LAT_LABELS[id] || "—";
-}
-
-function reminderOffsetLabel(n) {
-  const label = REMINDER_OFFSET_LABELS[n];
-  return label != null ? label : "—";
-}
-
-function setSettingAndReschedule(patch) {
-  const current = getSettings();
-  const merged = Object.assign({}, current, patch);
-  setSettings(merged);
-  try { applyReminders(); } catch (e) {}
-}
-
 Page(
   BasePage({
-    state: {
-      settings: null,
-    },
-
     onInit() {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      this.state.settings = getSettings();
+      
+      const self = this;
+      this.ctrl = createSettingsController(() => {
+        if (self._widgetIds) self.rebuild();
+      });
+      this.ctrl.onInit();
+    },
+
+    onResume() {
+      if (this.ctrl) this.ctrl.onResume();
     },
 
     build() {
@@ -88,13 +50,16 @@ Page(
         color: COLORS.BACKGROUND,
       }));
 
+      const rtl = isRTL();
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.BUTTON, {
-        x: px(SIDE_MARGIN),
+        x: rtl ? px(DEVICE_WIDTH - SIDE_MARGIN - 40) : px(SIDE_MARGIN),
         y: px(HEADER_Y),
         w: px(40),
         h: px(40),
         normal_src: "image/ic_back.png",
         press_src: "image/ic_back.png",
+        color: COLORS.ACCENT,
         click_func: () => {
           try { back(); } catch (e) {}
         },
@@ -109,35 +74,32 @@ Page(
         text_size: px(FONT_SIZES.HEADLINE),
         align_h: hmUI.align.CENTER_H,
         align_v: hmUI.align.CENTER_V,
-        text: "Settings",
+        text: t("settings"),
       }));
 
-      const s = this.state.settings;
+      const s = this.ctrl.state.settings;
+      if (!s) return;
 
       let y = LIST_TOP;
-      y = this.renderNavRow(y, "Calculation Method", methodLabel(s.method), () => this.openPicker("method"));
+      y = this.renderNavRow(y, t("calc_method"), methodLabel(s.method), () => this.openPicker("method"));
 
-      y = this.renderToggleCard(y, "Asr Madhab", [
-        { label: "Standard", selected: s.madhab === "standard", value: "standard" },
-        { label: "Hanafi", selected: s.madhab === "hanafi", value: "hanafi" },
+      y = this.renderToggleCard(y, t("asr_madhab"), [
+        { label: t("standard"), selected: s.madhab === "standard", value: "standard" },
+        { label: t("hanafi"), selected: s.madhab === "hanafi", value: "hanafi" },
       ], (value) => {
         if (s.madhab === value) return;
-        setSettingAndReschedule({ madhab: value });
-        this.state.settings = getSettings();
-        this.rebuild();
+        this.ctrl.updateSetting({ madhab: value });
       });
 
-      y = this.renderNavRow(y, "High Latitude Rule", highLatLabel(s.highLatRule), () => this.openPicker("highLatRule"));
-      y = this.renderNavRow(y, "Reminder Offset", reminderOffsetLabel(s.reminderOffsetMin), () => this.openPicker("reminderOffset"));
+      y = this.renderNavRow(y, t("high_lat_rule"), highLatLabel(s.highLatRule), () => this.openPicker("highLatRule"));
+      y = this.renderNavRow(y, t("reminder_offset"), reminderOffsetLabel(s.reminderOffsetMin), () => this.openPicker("reminderOffset"));
 
-      y = this.renderToggleCard(y, "Time Format", [
-        { label: "12h", selected: s.timeFormat === "12h", value: "12h" },
-        { label: "24h", selected: s.timeFormat === "24h", value: "24h" },
+      y = this.renderToggleCard(y, t("time_format"), [
+        { label: t("12h"), selected: s.timeFormat === "12h", value: "12h" },
+        { label: t("24h"), selected: s.timeFormat === "24h", value: "24h" },
       ], (value) => {
         if (s.timeFormat === value) return;
-        setSettingAndReschedule({ timeFormat: value });
-        this.state.settings = getSettings();
-        this.rebuild();
+        this.ctrl.updateSetting({ timeFormat: value });
       });
 
       // Bottom spacer so the last card clears the screen edge when scrolled.
@@ -164,32 +126,38 @@ Page(
         color: COLORS.CARD,
       }));
 
-      const innerW = CONTENT_W - 2 * CARD_PAD - CHEVRON_SIZE - 12;
+      const innerW = CONTENT_W - 2 * CARD_PAD - CHEVRON_SIZE - 8;
+      const rtl = isRTL();
+      const chevronX = rtl ? SIDE_MARGIN + CARD_PAD : SIDE_MARGIN + CONTENT_W - CARD_PAD - CHEVRON_SIZE;
+      const textX = rtl ? SIDE_MARGIN + CARD_PAD + CHEVRON_SIZE + 8 : SIDE_MARGIN + CARD_PAD;
+      const textAlign = rtl ? hmUI.align.RIGHT : hmUI.align.LEFT;
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN + CARD_PAD),
-        y: px(y + 16),
+        x: px(textX),
+        y: px(y + 14),
         w: px(innerW),
-        h: px(28),
+        h: px(26),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
+        align_h: textAlign,
         align_v: hmUI.align.CENTER_V,
         text: label,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(SIDE_MARGIN + CARD_PAD),
-        y: px(y + 50),
+        x: px(textX),
+        y: px(y + 42),
         w: px(innerW),
-        h: px(32),
+        h: px(28),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.BODY_LG),
+        align_h: textAlign,
         align_v: hmUI.align.CENTER_V,
         text: valueText,
       }));
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(SIDE_MARGIN + CONTENT_W - CARD_PAD - CHEVRON_SIZE),
+        x: px(chevronX),
         y: px(y + (NAV_CARD_HEIGHT - CHEVRON_SIZE) / 2),
         w: px(CHEVRON_SIZE),
         h: px(CHEVRON_SIZE),
@@ -221,21 +189,23 @@ Page(
 
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
         x: px(SIDE_MARGIN + CARD_PAD),
-        y: px(y + 16),
+        y: px(y + 14),
         w: px(CONTENT_W - 2 * CARD_PAD),
-        h: px(28),
+        h: px(26),
         color: COLORS.TEXT_MUTED,
         text_size: px(FONT_SIZES.LABEL_SM),
+        align_h: isRTL() ? hmUI.align.RIGHT : hmUI.align.LEFT,
         align_v: hmUI.align.CENTER_V,
         text: title,
       }));
 
-      const segY = y + 56;
-      const segH = 56;
-      const segGap = 8;
+      const segY = y + 48;
+      const segH = 48;
+      const segGap = 6;
       const segW = (CONTENT_W - 2 * CARD_PAD - segGap) / 2;
-      const segX1 = SIDE_MARGIN + CARD_PAD;
-      const segX2 = segX1 + segW + segGap;
+      const rtl = isRTL();
+      const segX1 = rtl ? SIDE_MARGIN + CARD_PAD + segW + segGap : SIDE_MARGIN + CARD_PAD;
+      const segX2 = rtl ? SIDE_MARGIN + CARD_PAD : segX1 + segW + segGap;
       const segXs = [segX1, segX2];
 
       for (let i = 0; i < options.length; i++) {

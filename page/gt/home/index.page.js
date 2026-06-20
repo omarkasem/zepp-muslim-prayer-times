@@ -3,26 +3,12 @@ import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { push } from "@zos/router";
-import { getLocation, setLocation, getSettings } from "../../../shared/storage";
-import { computePrayerTimes } from "../../../shared/prayer-times";
 import { toHijri } from "../../../shared/hijri";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
-import { applyReminders } from "../../../lib/reminders";
+import { createHomeController, PRAYERS, formatTime, prayerLabel } from "../../../lib/controllers/home-controller";
+import { isRTL, hijriMonth, t } from "../../../lib/i18n";
 
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = getDeviceInfo();
-
-const PRAYERS = [
-  { key: "fajr", label: "Fajr" },
-  { key: "dhuhr", label: "Dhuhr" },
-  { key: "asr", label: "Asr" },
-  { key: "maghrib", label: "Maghrib" },
-  { key: "isha", label: "Isha" },
-];
-
-function prayerLabel(prayer, date) {
-  if (prayer.key === "dhuhr" && date.getDay() === 5) return "Jumu'ah";
-  return prayer.label;
-}
 
 // For gt targets (designWidth: 480), round or square.
 // We use a larger side margin to avoid the curved edges of gt.r.
@@ -52,234 +38,35 @@ function estTextW(str, size) {
   return Math.ceil((str ? str.length : 0) * size * 0.56);
 }
 
-function formatTime(epochMs, timeFormat) {
-  const d = new Date(epochMs);
-  const h24 = d.getHours();
-  const m = d.getMinutes();
-  const mm = m < 10 ? "0" + m : "" + m;
-  if (timeFormat === "24h") {
-    return h24 + ":" + mm;
-  }
-  const ampm = h24 >= 12 ? "PM" : "AM";
-  let h12 = h24 % 12;
-  if (h12 === 0) h12 = 12;
-  return h12 + ":" + mm + " " + ampm;
-}
-
-function formatCountdown(label, ms) {
-  if (ms < 0) ms = 0;
-  const totalMin = Math.floor(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin - h * 60;
-  if (h > 0) return label + " in " + h + "h " + m + "m";
-  return label + " in " + m + "m";
-}
-
-function tomorrowDate(now) {
-  const d = new Date(now);
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
-}
-
 Page(
   BasePage({
-    state: {
-      phase: "loading",
-      location: null,
-      times: null,
-      tomorrowFajr: null,
-      currentIndex: -1,
-      countdownText: "",
-      timeFormat: "12h",
-    },
-
     onInit() {
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      this._firstBuild = true;
-      const cached = getLocation();
-      if (cached) {
-        this.state.location = cached;
-        if (this.prepareReadyStateFromLocation()) {
-          this.computeNext();
-          this.state.phase = "ready";
-        } else {
-          this.state.phase = "unavailable";
+
+      const self = this;
+      this.ctrl = createHomeController(
+        (req) => self.request(req),
+        () => {
+          self.destroyWidgets();
+          self.build();
+        },
+        () => {
+          self.updateCountdown();
         }
-      } else {
-        this.state.phase = "loading";
-        this.fetchLocation();
-      }
+      );
+      this.ctrl.onInit();
     },
 
     onResume() {
-      this.stopCountdownTimer();
-      if (this._firstBuild) {
-        this._firstBuild = false;
-        if (this.state.phase === "ready") {
-          this.startCountdownTimer();
-        }
-        try { applyReminders(); } catch (e) {}
-        return;
-      }
-      if (this.state.phase === "ready" && this.state.location) {
-        if (this.prepareReadyStateFromLocation()) {
-          this.computeNext();
-          this.destroyWidgets();
-          this.build();
-          this.startCountdownTimer();
-        }
-      }
-      try { applyReminders(); } catch (e) {}
+      if (this.ctrl) this.ctrl.onResume();
     },
 
     onPause() {
-      this.stopCountdownTimer();
+      if (this.ctrl) this.ctrl.onPause();
     },
 
     onDestroy() {
-      this.stopCountdownTimer();
-    },
-
-    fetchLocation() {
-      const self = this;
-      this.request({
-        method: "GET_LOCATION",
-        params: {},
-      })
-        .then((loc) => {
-          if (loc && typeof loc.lat === "number" && typeof loc.lon === "number" && loc.timezone) {
-            try {
-              setLocation(loc);
-              self.state.location = loc;
-              if (self.prepareReadyStateFromLocation()) {
-                self.computeNext();
-                self.state.phase = "ready";
-                self.destroyWidgets();
-                self.build();
-                self.startCountdownTimer();
-                try { applyReminders(); } catch (e) {}
-              } else {
-                self.renderUnavailable();
-              }
-            } catch (e) {
-              self.renderUnavailable();
-            }
-          } else {
-            self.renderUnavailable();
-          }
-        })
-        .catch(() => {
-          self.renderUnavailable();
-        });
-    },
-
-    prepareReadyStateFromLocation() {
-      const loc = this.state.location;
-      if (!loc) return false;
-      const settings = getSettings();
-      this.state.timeFormat = settings.timeFormat;
-      const now = new Date();
-      let times;
-      try {
-        times = computePrayerTimes({
-          lat: loc.lat,
-          lon: loc.lon,
-          timezone: loc.timezone,
-          date: now,
-          method: settings.method,
-          madhab: settings.madhab,
-          highLatRule: settings.highLatRule,
-        });
-      } catch (e) {
-        return false;
-      }
-      let tomorrowFajr = null;
-      try {
-        const tom = computePrayerTimes({
-          lat: loc.lat,
-          lon: loc.lon,
-          timezone: loc.timezone,
-          date: tomorrowDate(now),
-          method: settings.method,
-          madhab: settings.madhab,
-          highLatRule: settings.highLatRule,
-        });
-        tomorrowFajr = tom.fajr;
-      } catch (e) {
-        tomorrowFajr = null;
-      }
-      this.state.times = times;
-      this.state.tomorrowFajr = tomorrowFajr;
-      this.state.currentIndex = -1;
-      this.state.countdownText = "";
-      return true;
-    },
-
-    renderUnavailable() {
-      this.state.phase = "unavailable";
-      this.destroyWidgets();
-      this.build();
-    },
-
-    computeNext() {
-      const t = this.state.times;
-      if (!t) return false;
-      const now = Date.now();
-      const instants = PRAYERS.map((p) => t[p.key]);
-      const last = PRAYERS.length - 1;
-      const prevIndex = this.state.currentIndex;
-
-      let currentIdx;
-      let nextInstant;
-      let nextPrayerIdx;
-      let nextLabelDate;
-
-      if (now < instants[0]) {
-        currentIdx = last;            
-        nextPrayerIdx = 0;            
-        nextInstant = instants[0];
-        nextLabelDate = new Date();
-      } else {
-        currentIdx = 0;
-        for (let i = 0; i < instants.length; i++) {
-          if (instants[i] <= now) currentIdx = i;
-        }
-        if (currentIdx >= last) {
-          nextPrayerIdx = 0;
-          nextInstant = this.state.tomorrowFajr || instants[0];
-          nextLabelDate = tomorrowDate(now);
-        } else {
-          nextPrayerIdx = currentIdx + 1;
-          nextInstant = instants[nextPrayerIdx];
-          nextLabelDate = new Date();
-        }
-      }
-
-      const nextLabel = prayerLabel(PRAYERS[nextPrayerIdx], nextLabelDate);
-      this.state.currentIndex = currentIdx;
-      this.state.countdownText = formatCountdown(nextLabel, nextInstant - now);
-      return prevIndex !== currentIdx;
-    },
-
-    startCountdownTimer() {
-      this.stopCountdownTimer();
-      const self = this;
-      this._timer = setInterval(function () {
-        if (self.state.phase !== "ready") return;
-        const changed = self.computeNext();
-        if (changed) {
-          self.destroyWidgets();
-          self.build();
-        } else {
-          self.updateCountdown();
-        }
-      }, 60000);
-    },
-
-    stopCountdownTimer() {
-      if (this._timer) {
-        clearInterval(this._timer);
-        this._timer = null;
-      }
+      if (this.ctrl) this.ctrl.onDestroy();
     },
 
     trackWidget(id) {
@@ -309,7 +96,8 @@ Page(
         color: COLORS.BACKGROUND,
       }));
 
-      const phase = this.state.phase;
+      const state = this.ctrl.state;
+      const phase = state.phase;
 
       if (phase === "loading" || phase === "unavailable") {
         this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
@@ -322,45 +110,52 @@ Page(
           align_h: hmUI.align.CENTER_H,
           align_v: hmUI.align.CENTER_V,
           text_style: hmUI.text_style.WRAP,
-          text: phase === "loading" ? "Getting location…" : "Location unavailable",
+          text: phase === "loading" ? t("calibrating") : t("location_required"),
         }));
         this.renderBottomNav();
         return;
       }
 
-      this.renderHeader();
-      this.renderList();
+      this.renderHeader(state);
+      this.renderList(state);
       this.renderBottomNav();
     },
 
-    renderHeader() {
-      const loc = this.state.location;
+    renderHeader(state) {
+      const loc = state.location;
       const city = (loc && loc.city) ? loc.city : "—";
       const today = new Date();
       const hijri = toHijri(today);
-      const hijriText = (hijri.day + " " + hijri.monthName + " " + hijri.year).toUpperCase();
+      const hijriMonthStr = hijriMonth(hijri.month - 1);
+      const hijriText = isRTL()
+        ? (hijri.year + " " + hijriMonthStr + " " + hijri.day)
+        : (hijri.day + " " + hijriMonthStr + " " + hijri.year).toUpperCase();
 
-      const iconSize = 30; // 24 * 1.23 ~ 30
-      const gap = 10;
+      const iconSize = 22;
+      const gap = 8;
       const textW = Math.min(estTextW(city, FONT_SIZES.LABEL_SM), CONTENT_W - iconSize - gap);
       const groupW = iconSize + gap + textW;
       const groupX = Math.round((DEVICE_WIDTH - groupW) / 2);
 
+      const rtl = isRTL();
+      const iconX = rtl ? groupX + textW + gap : groupX;
+      const textX = rtl ? groupX : groupX + iconSize + gap;
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(groupX),
+        x: px(iconX),
         y: px(CITY_Y + (CITY_H - iconSize) / 2),
         w: px(iconSize),
         h: px(iconSize),
         src: "image/ic_pin.png",
       }));
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(groupX + iconSize + gap),
+        x: px(textX),
         y: px(CITY_Y),
         w: px(textW),
         h: px(CITY_H),
         color: COLORS.ACCENT,
         text_size: px(FONT_SIZES.LABEL_SM),
-        align_h: hmUI.align.LEFT,
+        align_h: rtl ? hmUI.align.RIGHT : hmUI.align.LEFT,
         align_v: hmUI.align.CENTER_V,
         text: city,
       }));
@@ -379,18 +174,24 @@ Page(
       }));
     },
 
-    renderList() {
-      const times = this.state.times;
-      const tf = this.state.timeFormat;
+    renderList(state) {
+      const times = state.times;
+      const tf = state.timeFormat;
       const step = LIST_HEIGHT / (PRAYERS.length - 1);
       this._countdownId = -1;
+      const rtl = isRTL();
 
       for (let i = 0; i < PRAYERS.length; i++) {
         const y = Math.round(LIST_TOP + i * step);
         const prayer = PRAYERS[i];
-        const isActive = (i === this.state.currentIndex);
+        const isActive = (i === state.currentIndex);
         const timeStr = formatTime(times[prayer.key], tf);
         const label = prayerLabel(prayer, new Date());
+
+        const labelX = rtl ? px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 180) : px(SIDE_MARGIN + ROW_INDENT);
+        const timeX = rtl ? px(SIDE_MARGIN + ROW_INDENT) : px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 160);
+        const labelAlign = rtl ? hmUI.align.RIGHT : hmUI.align.LEFT;
+        const timeAlign = rtl ? hmUI.align.LEFT : hmUI.align.RIGHT;
 
         if (isActive) {
           this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
@@ -402,55 +203,58 @@ Page(
             color: COLORS.NEXT_PRAYER_PILL,
           }));
           this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + ROW_INDENT),
-            y: px(y - 20),
-            w: px(200),
-            h: px(24),
+            x: labelX,
+            y: px(y - 18),
+            w: px(180),
+            h: px(22),
             color: COLORS.NEXT_PRAYER_TEXT,
             text_size: px(FONT_SIZES.LABEL_SM),
+            align_h: labelAlign,
             align_v: hmUI.align.CENTER_V,
             text: label,
           }));
           this._countdownId = this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + ROW_INDENT),
+            x: labelX,
             y: px(y + 6),
-            w: px(200),
-            h: px(20),
+            w: px(180),
+            h: px(18),
             color: COLORS.NEXT_PRAYER_TEXT,
             text_size: px(FONT_SIZES.SMALL),
+            align_h: labelAlign,
             align_v: hmUI.align.CENTER_V,
-            text: this.state.countdownText,
+            text: state.countdownText,
           }));
           this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 180),
+            x: timeX,
             y: px(y - PILL_HEIGHT / 2),
-            w: px(180),
+            w: px(160),
             h: px(PILL_HEIGHT),
             color: COLORS.NEXT_PRAYER_TEXT,
             text_size: px(FONT_SIZES.HEADLINE_MD),
-            align_h: hmUI.align.RIGHT,
+            align_h: timeAlign,
             align_v: hmUI.align.CENTER_V,
             text: timeStr,
           }));
         } else {
           this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(SIDE_MARGIN + ROW_INDENT),
+            x: labelX,
             y: px(y - ROW_HEIGHT_INACTIVE / 2),
             w: px(180),
             h: px(ROW_HEIGHT_INACTIVE),
             color: COLORS.TEXT_INACTIVE,
             text_size: px(FONT_SIZES.BODY_LG),
+            align_h: labelAlign,
             align_v: hmUI.align.CENTER_V,
             text: label,
           }));
           this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-            x: px(DEVICE_WIDTH - SIDE_MARGIN - ROW_INDENT - 180),
+            x: timeX,
             y: px(y - ROW_HEIGHT_INACTIVE / 2),
-            w: px(180),
+            w: px(160),
             h: px(ROW_HEIGHT_INACTIVE),
             color: COLORS.TEXT_INACTIVE,
             text_size: px(FONT_SIZES.BODY_LG),
-            align_h: hmUI.align.RIGHT,
+            align_h: timeAlign,
             align_v: hmUI.align.CENTER_V,
             text: timeStr,
           }));
@@ -459,35 +263,48 @@ Page(
     },
 
     updateCountdown() {
-      if (this._countdownId && this._countdownId !== -1) {
+      if (this._countdownId && this._countdownId !== -1 && this.ctrl) {
         hmUI.updateWidget(this._countdownId, hmUI.widget.TEXT, {
-          text: this.state.countdownText,
+          text: this.ctrl.state.countdownText,
         });
       }
     },
 
     renderBottomNav() {
-      const gap = 16;
+      const gap = 14;
       const btnW = Math.floor((CONTENT_W - gap) / 2);
-      const startX = SIDE_MARGIN;
-      const iconSize = 25;
+      const rtl = isRTL();
+      const qiblaStartX = rtl ? SIDE_MARGIN + btnW + gap : SIDE_MARGIN;
+      const settingsStartX = rtl ? SIDE_MARGIN : SIDE_MARGIN + btnW + gap;
+      const iconSize = 26;
 
       this.renderNavButton(
-        startX, btnW, iconSize,
+        qiblaStartX, btnW, iconSize,
         "image/ic_compass.png", COLORS.ACCENT_DEEP,
         "Qibla", COLORS.ACCENT,
         () => push({ url: "page/gt/qibla/index.page", params: {} })
       );
 
       this.renderNavButton(
-        startX + btnW + gap, btnW, iconSize,
+        settingsStartX, btnW, iconSize,
         "image/ic_gear.png", COLORS.TEXT_MUTED,
-        "Settings", COLORS.TEXT_PRIMARY,
+        t("settings"), COLORS.TEXT_PRIMARY,
         () => push({ url: "page/gt/settings/index.page", params: {} })
       );
     },
 
     renderNavButton(x, w, iconSize, iconSrc, iconColor, label, labelColor, onTap) {
+      const estLabelW = estTextW(label, FONT_SIZES.LABEL_SM);
+      const innerGap = 8;
+      let groupW = iconSize + innerGap + estLabelW;
+      if (groupW > w) groupW = w;
+      
+      const groupX = x + Math.floor((w - groupW) / 2);
+      const rtl = isRTL();
+      const iconX = rtl ? groupX + estLabelW + innerGap : groupX;
+      const textX = rtl ? groupX : groupX + iconSize + innerGap;
+      const maxTextW = rtl ? groupW - iconSize - innerGap : x + w - textX;
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.FILL_RECT, {
         x: px(x),
         y: px(NAV_Y),
@@ -496,25 +313,24 @@ Page(
         radius: px(NAV_H / 2),
         color: COLORS.CARD,
       }));
-      const labelW = estTextW(label, FONT_SIZES.LABEL_SM);
-      const innerGap = 8;
-      const groupW = iconSize + innerGap + labelW;
-      const groupX = x + Math.round((w - groupW) / 2);
       
       this.trackWidget(hmUI.createWidget(hmUI.widget.IMG, {
-        x: px(groupX),
+        x: px(iconX),
         y: px(NAV_Y + (NAV_H - iconSize) / 2),
         w: px(iconSize),
         h: px(iconSize),
         src: iconSrc,
+        color: iconColor,
       }));
+
       this.trackWidget(hmUI.createWidget(hmUI.widget.TEXT, {
-        x: px(groupX + iconSize + innerGap),
+        x: px(textX),
         y: px(NAV_Y),
-        w: px(labelW + 8),
+        w: px(maxTextW),
         h: px(NAV_H),
         color: labelColor,
         text_size: px(FONT_SIZES.LABEL_SM),
+        align_h: rtl ? hmUI.align.RIGHT : hmUI.align.LEFT,
         align_v: hmUI.align.CENTER_V,
         text: label,
       }));

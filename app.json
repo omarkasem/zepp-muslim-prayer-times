@@ -1,12 +1,12 @@
 {
   "configVersion": "v3",
   "app": {
-    "appId": 21915,
-    "appName": "Prayer Times",
+    "appId": 1115692,
+    "appName": "Muslim Prayer Times",
     "appType": "app",
     "version": {
-      "code": 11,
-      "name": "1.2.1"
+      "code": 12,
+      "name": "1.3.0"
     },
     "icon": "icon.png",
     "vender": "zepp",
@@ -35,7 +35,8 @@
             "page/gt/home/index.page",
             "page/gt/settings/index.page",
             "page/gt/settings-picker/index.page",
-            "page/gt/qibla/index.page"
+            "page/gt/qibla/index.page",
+            "page/gt/alert/index.page"
           ]
         },
         "app-side": {
@@ -64,7 +65,8 @@
             "page/bip6/home/index.page",
             "page/bip6/settings/index.page",
             "page/bip6/settings-picker/index.page",
-            "page/bip6/qibla/index.page"
+            "page/bip6/qibla/index.page",
+            "page/bip6/alert/index.page"
           ]
         },
         "app-side": {
@@ -95,7 +97,10 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "Prayer Times"
+      "appName": "Muslim Prayer Times"
+    },
+    "ar-SA": {
+      "appName": "مواقيت صلاة المسلم"
     }
   },
   "defaultLanguage": "en-US"

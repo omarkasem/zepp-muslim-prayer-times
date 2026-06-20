@@ -1,0 +1,140 @@
+msgid "appName"
+msgstr "مواقيت صلاة المسلم"
+
+msgid "prayer_fajr"
+msgstr "الفجر"
+
+msgid "prayer_dhuhr"
+msgstr "الظهر"
+
+msgid "prayer_asr"
+msgstr "العصر"
+
+msgid "prayer_maghrib"
+msgstr "المغرب"
+
+msgid "prayer_isha"
+msgstr "العشاء"
+
+msgid "prayer_jumuah"
+msgstr "الجمعة"
+
+msgid "next"
+msgstr "التالي"
+
+msgid "in"
+msgstr "في"
+
+msgid "tomorrow"
+msgstr "غداً"
+
+msgid "settings"
+msgstr "الإعدادات"
+
+msgid "calc_method"
+msgstr "طريقة الحساب"
+
+msgid "asr_madhab"
+msgstr "مذهب صلاة العصر"
+
+msgid "high_lat_rule"
+msgstr "قاعدة خطوط العرض العليا"
+
+msgid "reminder_offset"
+msgstr "تنبيه قبل الصلاة"
+
+msgid "time_format"
+msgstr "صيغة الوقت"
+
+msgid "standard"
+msgstr "قياسي"
+
+msgid "hanafi"
+msgstr "حنفي"
+
+msgid "none"
+msgstr "لا شيء"
+
+msgid "middle_of_night"
+msgstr "منتصف الليل"
+
+msgid "one_seventh"
+msgstr "سبع الليل"
+
+msgid "angle_based"
+msgstr "حسب الزاوية"
+
+msgid "at_prayer_time"
+msgstr "وقت الصلاة"
+
+msgid "5_min"
+msgstr "٥ دقائق"
+
+msgid "10_min"
+msgstr "١٠ دقائق"
+
+msgid "15_min"
+msgstr "١٥ دقيقة"
+
+msgid "20_min"
+msgstr "٢٠ دقيقة"
+
+msgid "method_mwl"
+msgstr "رابطة العالم الإسلامي"
+
+msgid "method_isna"
+msgstr "الجمعية الإسلامية لأمريكا الشمالية"
+
+msgid "method_egyptian"
+msgstr "المصرية"
+
+msgid "method_umm_al_qura"
+msgstr "أم القرى"
+
+msgid "method_karachi"
+msgstr "كراتشي"
+
+msgid "unknown_setting"
+msgstr "إعداد غير معروف"
+
+msgid "calibrating"
+msgstr "جارٍ المعايرة..."
+
+msgid "figure_8_hint"
+msgstr "حرك ساعتك بشكل رقم ٨"
+
+msgid "mecca"
+msgstr "مكة"
+
+msgid "cardinal_n"
+msgstr "ش"
+
+msgid "cardinal_e"
+msgstr "ق"
+
+msgid "cardinal_s"
+msgstr "ج"
+
+msgid "cardinal_w"
+msgstr "غ"
+
+msgid "location_required"
+msgstr "تحديد الموقع مطلوب لاتجاه القبلة."
+
+msgid "heading"
+msgstr "الاتجاه"
+
+msgid "time_for"
+msgstr "حان وقت"
+
+msgid "dismiss"
+msgstr "إغلاق"
+
+msgid "prayer"
+msgstr "صلاة"
+
+msgid "12h"
+msgstr "١٢ ساعة"
+
+msgid "24h"
+msgstr "٢٤ ساعة"
