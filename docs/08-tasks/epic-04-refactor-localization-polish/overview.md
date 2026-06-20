@@ -2,8 +2,9 @@
 
 **Status:** not started.
 **How to use:** in each AI-coder session, point at this file and say *"implement Step N"*. Steps are ordered
-for build efficiency (quick wins first, then the big refactor, then alert, then i18n last so it covers the
-refactored code). Each maps to one of the five requested features.
+for build efficiency: app-identity first (independent), then the **refactor** (which also fixes the Home
+buttons), then the custom alert, then Arabic **last** so it localizes the already-refactored single codebase.
+Covers requests #1–#5. Store submission + final audit are **Epic 05** (run after this epic).
 **Source of truth:** `epic-spec.md`. Do not expand scope beyond it. **Don't change `shared/` math or alarm
 semantics — this is refactor + polish + i18n.**
 **Rules (Bip 6 hard-won — apply from line 1):** `image/`-prefixed `src`; never tint an `IMG` via `color`;
@@ -11,9 +12,9 @@ IMG `w`/`h` = PNG pixel size; rotation via `setProperty(MORE,{angle})`; one coor
 `designWidth`); poll the compass heading (not `getStatus()`); `setStatusBarVisible(false)`; no `?.`;
 flattened colors; round safe area; **plus RTL** for Arabic.
 
-> Sequencing note: this epic's Step 3 (shared architecture) overlaps Epic 03 (gt layouts). Prefer building
-> gt on the shared controllers here rather than copying Bip 6 pages then de-duplicating. Decide before
-> starting Epic 03 Step 2.
+> Sequencing note: Epic 03 (gt layouts) is **done** — the gt pages are full duplicates of Bip 6. Step 2's
+> refactor collapses that duplication into shared controllers so the alert (Step 3) and Arabic (Step 4) are
+> implemented **once**, not across bip6 + gt.r + gt.s. Do Step 2 before Steps 3–4. Store/audit = Epic 05.
 
 ---
 
@@ -23,24 +24,23 @@ flattened colors; round safe area; **plus RTL** for Arabic.
 - [ ] `page/i18n/en-US.po`: `appName` → "Muslim Prayer Times"; add `page/i18n/ar-SA.po` with the Arabic name.
 - [ ] Bump `app.version.code` / `name`. Confirm `docs/app-store-listing.md` matches (already "Muslim Prayer Times").
 
-## Step 2 — Home Qibla/Settings buttons fix  (checklist) — *request #3*
-- [ ] Rework the Home bottom nav so the **"Qibla" / "Settings" labels are never cut off** at the sides
-      (size the label box to fit, center icon+label, keep within the safe area on all targets).
-- [ ] Verify on the real Bip 6 (and gt once it exists) at the longest label/locale (Arabic too).
-
-## Step 3 — Shared page architecture + multi-device  →  `feature-01-shared-architecture.md` — *request #1*
+## Step 2 — Shared page architecture + multi-device  →  `feature-01-shared-architecture.md` — *requests #1 + #3*
 - [ ] Extract device-agnostic page logic (home current/next + countdown; qibla compass poll + alignment;
       settings state) into `lib/` controllers; pages become thin per-target views.
-- [ ] Remove the copy-paste between `page/bip6/*` and `page/gt/*`; both consume the shared controllers.
+- [ ] Collapse the copy-paste between `page/bip6/*` and `page/gt/*` (gt is **already a full duplicate** —
+      Epic 03 steps 1–4 are done); both consume the shared controllers.
+- [ ] **Fold in the Home Qibla/Settings button fix (request #3):** in the shared Home view, size the label
+      box to fit + center icon+label so "Qibla"/"Settings" are never cut off (incl. long Arabic labels) —
+      fixed once, applies to every device.
 - [ ] Make adding a device a layout-config addition; add new device targets where verifiable.
-- [ ] Re-verify every Bip 6 screen behaves exactly as before.
+- [ ] Re-verify every Bip 6 + gt screen behaves exactly as before.
 
-## Step 4 — Custom prayer alert with logo  →  `feature-02-custom-prayer-alert.md` — *request #2*
+## Step 3 — Custom prayer alert with logo  →  `feature-02-custom-prayer-alert.md` — *request #2*
 - [ ] Investigate: custom full-screen alert page launched on alarm fire vs richer `notify()` + polished icon.
 - [ ] Implement a branded alert (app logo + prayer name + dismiss), with the system notification as fallback.
 - [ ] Keep vibration; ensure dismiss/auto-timeout; don't break the rollover reschedule.
 
-## Step 5 — Arabic localization + RTL  →  `feature-03-arabic-localization.md` — *request #4*
+## Step 4 — Arabic localization + RTL  →  `feature-03-arabic-localization.md` — *request #4*
 - [ ] Move every hardcoded UI string to i18n keys; add `ar-SA.po` translations (labels, prayer names,
       Hijri months, alert text, settings options).
 - [ ] RTL: right-align text and mirror left/right-anchored layout when the locale is Arabic.

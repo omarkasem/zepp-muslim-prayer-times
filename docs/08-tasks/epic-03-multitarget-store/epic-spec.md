@@ -1,10 +1,13 @@
 # Epic Purpose
 
 Bring the `gt` device family (round `r` + square `s`, `designWidth: 480`) to feature parity with the
-shipped Bip 6 app, then prepare the store submission. **No new logic** — `shared/` and `lib/reminders.js`
-are consumed exactly as-is; this epic is layout, per-target assets, store collateral, and a final
-offline/permissions audit. Bip 6 ships first; this is a fast-follow and could be deferred for a
-Bip-6-only V1.
+shipped Bip 6 app. **No new logic** — `shared/` and `lib/reminders.js` are consumed exactly as-is; this
+epic is layout + per-target assets only.
+
+> **Status: gt steps 1–4 complete.** The store submission + final offline/permissions audit that originally
+> lived here were **moved to `../epic-05-store-release/`** (the real last epic) so they run after the Epic 04
+> refactor/alert/Arabic work, when the UI, app id/name, and screenshots are final. The gt pages are
+> near-copies of the Bip 6 pages; **Epic 04 feature-01 collapses that duplication** — do it before Arabic/alert.
 
 # Included Features
 
@@ -15,11 +18,9 @@ Bip-6-only V1.
 - **`gt` Qibla** — re-lay-out the compass (dial, rotating arrow, Kaaba target, cardinals) for 480px;
   reuse the exact sensor/heading logic. **(complex → `feature-03-gt-qibla.md`)**
 - **Per-target assets** — bundle the `ic_*` PNGs under `assets/gt.r/image/` and `assets/gt.s/image/`;
-  per-target app icon. **(simple → overview checklist)**
-- **Store submission** — finalize `docs/app-store-listing.md`, generate store screenshots, app icon.
-  **(simple → overview checklist)**
-- **Final offline + permissions audit** — confirm offline behavior and that `app.json` permissions
-  match real usage. **(simple → overview checklist)**
+  per-target app icon. **(simple → overview checklist)** ✅ done.
+
+> Store submission + final offline/permissions audit **moved to `../epic-05-store-release/`**.
 
 # Excluded Features
 

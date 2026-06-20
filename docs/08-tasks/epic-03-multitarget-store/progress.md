@@ -1,24 +1,21 @@
-# Epic 03 — Multi-target & Store — Progress
-
-## Pending
-- Step 1 — gt scaffolding & assets (checklist in `overview.md`)
-- Step 2 — gt Home (`feature-01-gt-home.md`)
-- Step 3 — gt Settings + Picker (`feature-02-gt-settings.md`)
-- Step 4 — gt Qibla (`feature-03-gt-qibla.md`)
-- Step 5 — Store assets & submission (checklist)
-- Step 6 — Final offline & permissions audit (checklist)
+# Epic 03 — Multi-target (gt) — Progress
 
 ## Completed
-- (none yet)
-- Note: store copy already drafted in `../../app-store-listing.md` (finalize in Step 5).
+- Step 1 — gt scaffolding & assets (pages registered in `app.json`; `ic_*` + logo bundled under
+  `assets/gt.r/image/` and `assets/gt.s/image/`).
+- Step 2 — gt Home (`page/gt/home/index.page.js`).
+- Step 3 — gt Settings + Picker (`page/gt/settings/index.page.js`, `page/gt/settings-picker/index.page.js`).
+- Step 4 — gt Qibla (`page/gt/qibla/index.page.js`).
+- Verified: all gt pages syntax-clean, `image/`-prefixed `src`, no `IMG` `color` tints, no `heading` debug.
 
-## Blockers
-- (none) — but verification needs a gt device or simulator; compass + alarm rollover should be confirmed on
-  real gt hardware before store release.
+## Moved out
+- Store assets/screenshots + final offline/permissions audit → **`../epic-05-store-release/`** (run last).
 
-## Implementation Notes
-- No new logic this epic. Port the shipped `page/bip6/*` pages; consume `shared/` + `lib/reminders.js` as-is.
-- Carry every Bip 6 UI rule (see `overview.md` header): `image/`-prefixed src; never tint an IMG via
-  `color`; IMG `w`/`h` = PNG pixel size; rotation via `setProperty(MORE,{angle})`; poll the compass heading.
-- gt is round (`gt.r`) + square (`gt.s`) sharing `page/gt/*` — verify both shapes; respect the round safe area.
-- Keep `page/bip6/*` untouched except a non-regressing `lib/theme.js` size tweak if 480px needs it.
+## Pending
+- (none in this epic.)
+
+## Blockers / Notes
+- gt pages are near-verbatim copies of the Bip 6 pages (only layout numbers differ). This duplication is
+  intentionally collapsed by **Epic 04 feature-01 (shared architecture)** — do that refactor before the
+  Arabic/alert work so those land once across bip6 + gt.r + gt.s, not three times.
+- gt behavior still needs real-device/simulator confirmation for the compass + alarm rollover paths.

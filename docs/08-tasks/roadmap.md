@@ -1,10 +1,13 @@
 # Project Roadmap
 
-V1 of the Prayer Times Zepp watch app, grouped into 3 epics. The codebase is small (~15 source files),
-so epics are coarse and the **step** (sent to the AI coder and reviewed one at a time) is the real work
-unit — aim for ~8–12 steps total. Only genuinely complex steps get their own `feature-*.md`; the rest
-are checklist items in each epic's `overview.md`. The current code is a **spike** (working location + 5
-test alarms) and is restructured in Epic 1.
+V1 of the Prayer Times Zepp watch app. Originally 3 epics; now **5** after the post-Bip-6 work grew
+(refactor, custom alert, Arabic, store split out). The **step** (sent to the AI coder and reviewed one at a
+time) is the real work unit. Only genuinely complex steps get their own `feature-*.md`; the rest are
+checklist items in each epic's `overview.md`.
+
+Epic flow: **01** engine → **02** Bip 6 app → **03** gt multi-target (done) → **04** refactor + alert +
+Arabic + app identity → **05** store submission & release audit (last). Store/audit were moved out of Epic
+03 into Epic 05 so they run after all app-changing work.
 
 ---
 
@@ -70,24 +73,65 @@ days; test multi-day on-device. Confirm the Bip 6 compass API early. Likely feat
 
 ---
 
-## Epic 03 — Multi-target & Store (fast-follow)
+## Epic 03 — Multi-target (gt)  ✅ steps 1–4 done
 
 ### Purpose
-Bring the `gt` family to parity and prepare the store submission. Bip 6 ships first; this can follow.
+Bring the `gt` family (round `r` + square `s`, 480px) to parity with Bip 6. Layout only.
 
 ### Included Features
-- `gt` `r`/`s` layouts for home / settings / qibla (logic reused from `shared/`, layout only).
-- Icons/assets per target; store description + screenshots.
-- Final offline + permissions audit.
+- `gt` `r`/`s` layouts for home / settings / settings-picker / qibla (logic reused from `shared/`).
+- Icons/assets per target.
+
+### Status
+gt pages built, registered, assets bundled, and rule-checked. **Store submission + final audit were moved
+out to Epic 05** (so they run truly last). The gt pages are duplicates of Bip 6 — **Epic 04 collapses that.**
 
 ### Dependencies
 Epic 02.
 
+---
+
+## Epic 04 — Refactor, Localization & Polish
+
+### Purpose
+De-duplicate the per-device pages and finish product polish before release.
+
+### Included Features (build order)
+1. App identity & metadata — `appId 1115692`, name "Muslim Prayer Times" / "مواقيت صلاة المسلم".
+2. **Shared page architecture** — extract device-agnostic logic into `lib/` controllers; collapse the
+   bip6/gt duplication; **fold in the Home Qibla/Settings button fix**; allow more device targets.
+3. **Custom prayer alert** — branded alert with the app logo (custom page and/or richer notification).
+4. **Arabic localization + RTL** — i18n pass + `ar-SA.po`; done last so it covers one refactored codebase.
+
+### Dependencies
+Epic 03 (gt exists). Do the refactor (#2) before the alert/Arabic so those land once.
+
 ### Estimated Complexity
-Medium.
+High (cross-cutting refactor + full i18n).
 
 ### Priority
-Medium.
+High (precedes release).
+
+---
+
+## Epic 05 — Store Submission & Release Audit (the last epic)
+
+### Purpose
+Final collateral, verification, and store submission — after Epic 04 is frozen.
+
+### Included Features
+- Final offline + permissions audit; finalize app id/version.
+- Store assets: app icon + EN/AR screenshots.
+- Listing finalization (`../app-store-listing.md`) + privacy-policy URL if required; submit.
+
+### Dependencies
+Epic 04 complete (UI, app id/name, Arabic all final).
+
+### Estimated Complexity
+Low–Medium (no code).
+
+### Priority
+Last.
 
 ### Implementation Notes
-Mostly layout files — no new logic. Could be deferred entirely if a Bip-6-only V1 ships first.
+No feature work — route any real bug found during the audit back to its owning epic, then resume.
