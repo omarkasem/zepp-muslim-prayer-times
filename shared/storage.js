@@ -34,7 +34,48 @@ export function setSettings(settings) {
   localStorage.setItem('settings', JSON.stringify(sanitized));
 }
 
-export function getAlarmIds() {
+// Prayer reminder alarms, stored with timing metadata so the scheduler can
+// diff against them incrementally: [{ id, time, prayer }] (time in epoch-sec).
+export function getAlarmEntries() {
+  try {
+    const data = localStorage.getItem('alarmEntries');
+    if (!data) return [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+export function setAlarmEntries(entries) {
+  if (!Array.isArray(entries)) return;
+  localStorage.setItem('alarmEntries', JSON.stringify(entries));
+}
+
+// The midnight rollover alarm lives in its own slot so the prayer-alarm diff
+// can never cancel it: { id, time } or null.
+export function getRolloverAlarm() {
+  try {
+    const data = localStorage.getItem('rolloverAlarm');
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    return (parsed && typeof parsed === 'object') ? parsed : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+export function setRolloverAlarm(entry) {
+  if (entry == null) {
+    localStorage.removeItem('rolloverAlarm');
+    return;
+  }
+  localStorage.setItem('rolloverAlarm', JSON.stringify(entry));
+}
+
+// Legacy: older builds stored a flat list of alarm ids under 'alarmIds' with no
+// timing metadata. We can't diff those, so we cancel them once and clear.
+export function getLegacyAlarmIds() {
   try {
     const data = localStorage.getItem('alarmIds');
     if (!data) return [];
@@ -45,9 +86,8 @@ export function getAlarmIds() {
   }
 }
 
-export function setAlarmIds(ids) {
-  if (!Array.isArray(ids)) return;
-  localStorage.setItem('alarmIds', JSON.stringify(ids));
+export function clearLegacyAlarmIds() {
+  localStorage.removeItem('alarmIds');
 }
 
 export function getScheduledThrough() {
