@@ -30,6 +30,26 @@ describe('toHijri', () => {
         expect(result.year).toBe(1445);
     });
 
+    it('default offset (0) leaves the result unchanged', () => {
+        const d = new Date(2024, 2, 11);
+        expect(toHijri(d, 0)).toEqual(toHijri(d));
+    });
+
+    it('positive offset advances the Hijri day', () => {
+        const d = new Date(2024, 2, 11); // 1 Ramadan 1445 (tabular)
+        const base = toHijri(d);
+        const plusOne = toHijri(d, 1);
+        expect(plusOne.day).toBe(base.day + 1);
+        expect(plusOne.month).toBe(base.month);
+    });
+
+    it('negative offset rolls back across a month boundary', () => {
+        const d = new Date(2024, 3, 10); // 1 Shawwal 1445 (tabular)
+        const result = toHijri(d, -1);
+        expect(result.monthName).toBe('Ramadan');
+        expect(result.month).toBe(9);
+    });
+
     it('converts near Hijri year boundary correctly (July 7, 2024)', () => {
         let d = new Date(2024, 6, 7); // July 7, 2024
         const result = toHijri(d);

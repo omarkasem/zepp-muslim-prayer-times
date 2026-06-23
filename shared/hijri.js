@@ -1,7 +1,14 @@
-export function toHijri(date) {
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
+export function toHijri(date, offsetDays = 0) {
+    // The arithmetic (tabular) Hijri calendar routinely differs by ±1 day from
+    // the locally announced (moon-sighting / Umm al-Qura) date. offsetDays lets
+    // the user nudge the result to match their region; we apply it by shifting
+    // the civil date before conversion.
+    const n = (typeof offsetDays === 'number' && !isNaN(offsetDays)) ? offsetDays : 0;
+    const src = n ? new Date(date.getFullYear(), date.getMonth(), date.getDate() + n) : date;
+
+    let year = src.getFullYear();
+    let month = src.getMonth() + 1;
+    let day = src.getDate();
     
     if (month <= 2) {
         year -= 1;

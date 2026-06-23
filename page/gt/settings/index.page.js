@@ -5,7 +5,7 @@ import { px } from "@zos/utils";
 import { push } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
-import { createSettingsController, methodLabel, highLatLabel, reminderOffsetLabel } from "../../../lib/controllers/settings-controller";
+import { createSettingsController, methodLabel, highLatLabel, reminderOffsetLabel, hijriOffsetLabel } from "../../../lib/controllers/settings-controller";
 import { getLocation } from "../../../shared/storage";
 import { requestAndStoreLocation } from "../../../lib/location";
 import { isRTL, t } from "../../../lib/i18n";
@@ -87,6 +87,7 @@ Page(
 
       y = this.renderNavRow(y, t("high_lat_rule"), highLatLabel(s.highLatRule), () => this.openPicker("highLatRule"));
       y = this.renderNavRow(y, t("reminder_offset"), reminderOffsetLabel(s.reminderOffsetMin), () => this.openPicker("reminderOffset"));
+      y = this.renderNavRow(y, t("hijri_adjust"), hijriOffsetLabel(s.hijriOffsetDays), () => this.openPicker("hijriOffset"));
 
       y = this.renderToggleCard(y, t("time_format"), [
         { label: t("12h"), selected: s.timeFormat === "12h", value: "12h" },

@@ -3,7 +3,8 @@ export const DEFAULT_SETTINGS = {
   madhab: "standard",
   highLatRule: "none",
   reminderOffsetMin: 0,
-  timeFormat: "12h"
+  timeFormat: "12h",
+  hijriOffsetDays: 0
 };
 
 export function validateLocation(loc) {
@@ -35,6 +36,16 @@ export function sanitizeSettings(settings) {
   
   const timeFormats = ['12h', '24h'];
   const timeFormat = timeFormats.includes(settings.timeFormat) ? settings.timeFormat : DEFAULT_SETTINGS.timeFormat;
-  
-  return { method, madhab, highLatRule, reminderOffsetMin: offset, timeFormat };
+
+  let hijriOffsetDays = DEFAULT_SETTINGS.hijriOffsetDays;
+  let rawHijri = settings.hijriOffsetDays;
+  if (typeof rawHijri === 'string' && rawHijri.trim() !== '' && !isNaN(parseInt(rawHijri, 10))) {
+    rawHijri = parseInt(rawHijri, 10);
+  }
+  if (typeof rawHijri === 'number' && !isNaN(rawHijri)) {
+    // Clamp to the supported nudge range.
+    hijriOffsetDays = Math.max(-2, Math.min(2, Math.round(rawHijri)));
+  }
+
+  return { method, madhab, highLatRule, reminderOffsetMin: offset, timeFormat, hijriOffsetDays };
 }

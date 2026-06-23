@@ -4,6 +4,7 @@ import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { push } from "@zos/router";
 import { toHijri } from "../../../shared/hijri";
+import { getSettings } from "../../../shared/storage";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createHomeController, PRAYERS, formatTime, prayerLabel } from "../../../lib/controllers/home-controller";
 import { isRTL, hijriMonth, t } from "../../../lib/i18n";
@@ -139,7 +140,7 @@ Page(
       const loc = state.location;
       const city = (loc && loc.city) ? loc.city : "—";
       const today = new Date();
-      const hijri = toHijri(today);
+      const hijri = toHijri(today, getSettings().hijriOffsetDays);
       const hijriMonthStr = hijriMonth(hijri.month - 1);
       const hijriText = isRTL()
         ? (hijri.year + " " + hijriMonthStr + " " + hijri.day)

@@ -29,7 +29,7 @@ describe('sanitizeSettings', () => {
   });
 
   it('preserves valid settings', () => {
-    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angle_based', reminderOffsetMin: 15, timeFormat: '24h' };
+    const valid = { method: 'isna', madhab: 'hanafi', highLatRule: 'angle_based', reminderOffsetMin: 15, timeFormat: '24h', hijriOffsetDays: 1 };
     expect(sanitizeSettings(valid)).toEqual(valid);
   });
 
@@ -40,8 +40,16 @@ describe('sanitizeSettings', () => {
       madhab: 'hanafi',
       highLatRule: 'none',
       reminderOffsetMin: DEFAULT_SETTINGS.reminderOffsetMin,
-      timeFormat: DEFAULT_SETTINGS.timeFormat
+      timeFormat: DEFAULT_SETTINGS.timeFormat,
+      hijriOffsetDays: DEFAULT_SETTINGS.hijriOffsetDays
     });
+  });
+
+  it('clamps hijriOffsetDays to the -2..2 range', () => {
+    expect(sanitizeSettings({ hijriOffsetDays: 5 }).hijriOffsetDays).toBe(2);
+    expect(sanitizeSettings({ hijriOffsetDays: -5 }).hijriOffsetDays).toBe(-2);
+    expect(sanitizeSettings({ hijriOffsetDays: "1" }).hijriOffsetDays).toBe(1);
+    expect(sanitizeSettings({ hijriOffsetDays: "bad" }).hijriOffsetDays).toBe(0);
   });
   
   it('parses valid string offsets', () => {
