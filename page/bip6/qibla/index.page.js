@@ -3,6 +3,7 @@ import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
+import { setPageBrightTime, pauseDropWristScreenOff } from "@zos/display";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createQiblaController, bearingToCardinal, normalize360 } from "../../../lib/controllers/qibla-controller";
 import { isRTL, t } from "../../../lib/i18n";
@@ -22,7 +23,11 @@ Page(
     onInit() {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      
+      // Qibla needs a longer awake window (~60s): the user is rotating and
+      // watching the arrow. Also keep the screen on when the wrist is lowered.
+      try { setPageBrightTime({ brightTime: 60000 }); } catch (e) {}
+      try { pauseDropWristScreenOff({ duration: 60000 }); } catch (e) {}
+
       const self = this;
       this.ctrl = createQiblaController(
         () => {

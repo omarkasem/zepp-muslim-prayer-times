@@ -4,6 +4,7 @@ import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { push } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
+import { setPageBrightTime } from "@zos/display";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createSettingsController, methodLabel, highLatLabel, reminderOffsetLabel, hijriOffsetLabel } from "../../../lib/controllers/settings-controller";
 import { getLocation } from "../../../shared/storage";
@@ -29,7 +30,10 @@ Page(
     onInit() {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      
+      // Keep the screen lit ~30s so the system screen-off timer doesn't dismiss
+      // the app mid-adjustment.
+      try { setPageBrightTime({ brightTime: 30000 }); } catch (e) {}
+
       const self = this;
       this.ctrl = createSettingsController(() => {
         if (self._widgetIds) self.rebuild();

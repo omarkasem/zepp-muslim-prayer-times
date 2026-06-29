@@ -4,6 +4,7 @@ import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { back } from "@zos/router";
 import { setScrollMode, SCROLL_MODE_FREE } from "@zos/page";
+import { setPageBrightTime } from "@zos/display";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
 import { createSettingsPickerController } from "../../../lib/controllers/settings-picker-controller";
 import { isRTL, t } from "../../../lib/i18n";
@@ -24,7 +25,9 @@ Page(
     onInit(p) {
       try { setScrollMode({ mode: SCROLL_MODE_FREE }); } catch (e) {}
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      
+      // Keep the screen lit ~30s so the picker isn't dismissed mid-selection.
+      try { setPageBrightTime({ brightTime: 30000 }); } catch (e) {}
+
       this.ctrl = createSettingsPickerController(() => {
         try { back(); } catch (e) {}
       });

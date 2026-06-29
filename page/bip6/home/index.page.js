@@ -3,6 +3,7 @@ import * as hmUI from "@zos/ui";
 import { getDeviceInfo } from "@zos/device";
 import { px } from "@zos/utils";
 import { push } from "@zos/router";
+import { setPageBrightTime } from "@zos/display";
 import { toHijri } from "../../../shared/hijri";
 import { getSettings } from "../../../shared/storage";
 import { COLORS, FONT_SIZES } from "../../../lib/theme";
@@ -44,7 +45,10 @@ Page(
   BasePage({
     onInit() {
       try { hmUI.setStatusBarVisible(false); } catch (e) {}
-      
+      // Keep the screen lit ~30s so the app isn't dismissed by the system
+      // screen-off timer while the user is reading prayer times.
+      try { setPageBrightTime({ brightTime: 30000 }); } catch (e) {}
+
       const self = this;
       this.ctrl = createHomeController(
         (req) => self.request(req),
